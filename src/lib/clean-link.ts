@@ -5,6 +5,14 @@ import execa from 'execa';
 import fs from 'fs-extra';
 
 import pkgDir from 'pkg-dir';
+
+import {
+  DEFAULT_BUILD_SCRIPT,
+  DEFAULT_WATCH_ARG,
+  DEFAULT_OUT_DIR_ARG,
+  DEFAULT_DIST_DIR
+} from 'etc/constants';
+
 import {CleanLinkOptions} from 'etc/types';
 import log from 'lib/log';
 
@@ -20,7 +28,16 @@ import log from 'lib/log';
  * Using this approach, we avoid symlinking the entire project structure, which
  * can cause unexpected behavior.
  */
-export default function link(options: CleanLinkOptions): void {
+export default function link(userOptions: CleanLinkOptions): void {
+  // Apply defaults.
+  const options: CleanLinkOptions = {
+    buildScript: DEFAULT_BUILD_SCRIPT,
+    watchArg: DEFAULT_WATCH_ARG,
+    outDirArg: DEFAULT_OUT_DIR_ARG,
+    distDir: DEFAULT_DIST_DIR,
+    ...userOptions
+  };
+
   try {
     // Get the directory to which NPM links packages.
     const NPM_PREFIX = execa.shellSync('npm prefix -g').stdout;
