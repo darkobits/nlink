@@ -12,10 +12,9 @@
     "clean": "rimraf dist",
     "check:styles": "tslint --project tsconfig.json --format codeFrame",
     "check:types": "tsc --emitDeclarationOnly && rimraf **/*.spec.d.ts",
-    "test": "jest",
     "prebuild": "run-p clean check:*",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline",
-    "prebump": "run-p test build",
+    "prebump": "run-p build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta",
     "start": "nodemon --exec \"babel-node --extensions='.ts'\" src/index.ts"
