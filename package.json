@@ -1,6 +1,6 @@
 {
   "name": "@darkobits/clean-link",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "darkobits",
   "description": "Improved 'npm link'.",
   "license": "WTFPL",
