@@ -79,7 +79,11 @@ Otherwise, you may need to provide one or more arguments to `clean-link` to tell
 
 These defaults are optimized for Babel, but could be adapted for any build tool that accepts similar argument types.
 
-Now, just run `npm run link` instead of `npm link`, and start hacking! 🌈 🦄
+Now, just run `npm run link` instead of `npm link`, and start hacking!
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/441546/41495073-e120a3cc-70d3-11e8-81da-35f59501cd0e.jpg" width="250">
+</p>
 
 ## Programmatic Use
 
