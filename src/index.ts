@@ -1,3 +1,3 @@
 export {default as default} from './lib/clean-link';
 
-export {CleanLinkOptions} from './etc/types';
+// export {CleanLinkOptions} from './etc/types';

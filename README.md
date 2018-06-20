@@ -9,24 +9,35 @@
   <a href="https://github.com/sindresorhus/xo"><img src="https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square"></a>
 </p>
 
+# Install
+
+```
+npm install --save-dev @darkobits/clean-link
+```
+
+Then, use the `clean-link-dir` script anywhere in your package scripts. See below for an example.
+
+# Use
+
 [`npm link`](https://docs.npmjs.com/cli/link) is a handy utility for developing libraries / frameworks / tooling and ensuring they work with their dependents.
 
-Given a hypothetical library, **myLib**, and a hypothetical depdendent, **someDependent**, a common workflow involves something like the following:
+Given a hypothetical library, **foo-lib**, and a hypothetical dependent, **bar-app**, a common workflow involves something like the following:
 
-1. Run `npm link` from the **myLib** project folder.
-2. Start **myLib**'s build script in watch mode.
-2. Run `npm link myLib` from the **someDependent** project folder.
-4. Make changes to **myLib**'s source.
-5. Verify these changes didn't break anything in **someDependent**.
-6. Profit. 💰
+1. Run `npm link` from the **foo-lib** project folder.
+2. Start **foo-lib**'s build script in watch mode.
+3. Run `npm link foo-lib` from the **bar-app** project folder.
+4. Make changes to **foo-lib**'s source.
+5. Verify these changes didn't break anything in **bar-app**.
+6. ????
+6. Profit!! 💰
 
 This nice workflow can get a little wonky under certain circumstances, however. Consider the following case:
 
-- **someDependent** is compiled with Babel 6.x.
-- **myLib** is compiled with Babel 7.x.
-- **myLib** is `npm link`-ed into **someDependent**.
+- **bar-app** is compiled with Babel 6.x.
+- **foo-lib** is compiled with Babel 7.x.
+- **foo-lib** is `npm link`-ed into **bar-app**.
 
-If you try to run **someDependent**, you will get the following error:
+If you try to run **bar-app**, you will get the following error:
 
 ```
 Error: Requires Babel "^7.x.x", but was loaded with "6.x.x". If you are sure you
@@ -36,68 +47,44 @@ error to look for the first entry that doesn't mention "@babel/core" or
 "babel-core" to see what is calling Babel.
 ```
 
-That's definitely a [bad-time][bad-time-url], mate. We don't even need the files for **myLib** transpiled; they already have been. And because Babel has [a bug](https://github.com/babel/babel/issues/5532) with `ignore`, there's not much that can be done to fix this.
+That's definitely a [bad-time][bad-time-url], mate. What's going on here? We don't need the files for **foo-lib** transpiled, they already have been!
 
-What we really want is to hide **myLib**'s `.babelrc` (and really, everything that is _not_ a build artifact) from **someDependent**, just as would be the case if we had `npm install`-ed **myLib** normally.
+This is happening because the copy of Babel in **bar-app** can see the `.babelrc` file in **foo-lib** because NPM symlinks the _entire project folder_ into **bar-app**'s `node_modules`. If we published **foo-lib** in its current state and `npm install`-ed it in **bar-app** normally, we would not encounter this and similar kinds of errors.
 
-That's what `clean-link` aims to do. Instead of symlinking your entire project, it only symlinks `package.json`, `node_modules` and your build artifacts folder (`dist` by default), the bare minimum needed by a dependent.
+And, because Babel has [a bug](https://github.com/babel/babel/issues/5532) with `ignore`, we can't simply `--ignore=node_modules` from **bar-app**. What we really want is to *hide* **foo-lib**'s `.babelrc` (and everything else that would not be included in a distribution) from **bar-app**, because developing in an environment that is as close as possible to production `===` 👍.
 
-# Install
+That's what `clean-link` does. Instead of symlink-ing your entire project, it only symlinks `package.json`, `node_modules` , and any `bin` files your project may specify. Then, it returns the path to this nice, clean workspace which you can then write your build artifacts to. In practice, that might look something like this:
 
-```
-npm install --save-dev @darkobits/clean-link
-```
-
-# Use
-
-`clean-link` may be used via a CLI or programatically.
-
-## CLI
-
-The easiest way to use `clean-link` is to add a script to your project's `package.json`:
-
-```diff
+```js
 {
+  "name": "foo-lib",
+  "version": "1.0.0",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
   "scripts": {
-    "build": "babel src --out-dir dist <etc>",
-    "build:watch": "babel src --out-dir dist --watch",
-+    "link": "clean-link"
+    // Our normal build script writes files to 'dist'.
+    "build": "babel src --out-dir=dist",
+    // 'npm run link' will write files to something like '/usr/local/lib/node_modules/foo-lib/dist'
+    // and update it when we make changes.
+    "link": "npm run build -- --out-dir=$(npx clean-link-dir)/dist --watch"
   }
+  // etc...
 }
 ```
 
-If you use Babel, and you have a script named `build` that builds your project, and your output folder is `dist`, you're done!
+Now, when we run `npm link foo-lib` from **bar-app**, we only get the files we need, and everything is copacetic. 🕶
 
-Otherwise, you may need to provide one or more arguments to `clean-link` to tell it how your project is built:
+## Debugging
 
-|Name|Default|Description|
-|---|---|---|
-|`--build-script`|`'build'`|Name of the [NPM script](https://docs.npmjs.com/cli/run-script) that builds your project.|
-|`--watch-arg`|`'watch'`|Argument to pass to your project's build tool that enables watch mode.|
-|`--out-dir-arg`|`'out-dir'`|Argument to pass to your project's build tool that indicates the output directory.|
-|`--dist-dir`|`'dist'`|Location where your project's build artifacts are typically generated.|
+This package respects the `LOG_LEVEL` environment variable, and uses the standard [NPM log levels](https://github.com/npm/npmlog#loglevelprefix-message-). For more verbose output, try `LOG_LEVEL=verbose npm run <script that uses clean-link-dir>`.
 
-These defaults are optimized for Babel, but could be adapted for any build tool that accepts similar argument types.
-
-Now, just run `npm run link` instead of `npm link`, and start hacking!
+<br>
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/441546/41495073-e120a3cc-70d3-11e8-81da-35f59501cd0e.jpg" width="250">
 </p>
-
-## Programmatic Use
-
-`clean-link` _can_ be used programatically, but if used as intended, it will start a long-running process and therefore will not return; the process is typically terminated by sending `SIGINT` (Ctrl + C on Unix-like systems).
-
-```ts
-import cleanLink from '@darkobits/clean-link';
-
-// All command-line arguments are expected in camelCase when calling cleanLink directly:
-cleanLink({
-  buildScript: 'my-build-script',
-  distDir: 'out'
-});
-```
 
 ## &nbsp;
 <p align="center">

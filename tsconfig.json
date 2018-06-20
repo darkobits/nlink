@@ -45,6 +45,6 @@
     "pretty": true,
 
     // Enable strict null checks.
-    "strictNullChecks": true
+    "strictNullChecks": false
   }
 }

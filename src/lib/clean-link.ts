@@ -1,86 +1,110 @@
 import path from 'path';
+
 import execa from 'execa';
-
-// @ts-ignore
 import fs from 'fs-extra';
-
 import pkgDir from 'pkg-dir';
+import rimraf from 'rimraf';
 
-import {
-  DEFAULT_BUILD_SCRIPT,
-  DEFAULT_WATCH_ARG,
-  DEFAULT_OUT_DIR_ARG,
-  DEFAULT_DIST_DIR
-} from 'etc/constants';
-
-import {CleanLinkOptions} from 'etc/types';
+import createSymlink from 'lib/create-symlink';
 import log from 'lib/log';
+import parsePackageName from 'lib/parse-package-name';
 
 
 /**
  * Replacement for 'npm link' that creates an output directory that only
- * contains files essential for the package to run:
+ * contains files essential for the package to run, rather than linking the
+ * entire project directory.
  *
  * - package.json
  * - node_modules
- * - The package's build artifacts directory.
  *
- * Using this approach, we avoid symlinking the entire project structure, which
- * can cause unexpected behavior.
+ * Returns the path to the link directory, to which the user should write their
+ * build artifacts.
  */
-export default function link(userOptions: CleanLinkOptions): void {
-  // Apply defaults.
-  const options: CleanLinkOptions = {
-    buildScript: DEFAULT_BUILD_SCRIPT,
-    watchArg: DEFAULT_WATCH_ARG,
-    outDirArg: DEFAULT_OUT_DIR_ARG,
-    distDir: DEFAULT_DIST_DIR,
-    ...userOptions
-  };
+export default function link(): string {
+  // Get the directory to which NPM links packages.
+  const NPM_PREFIX = execa.shellSync('npm prefix -g').stdout;
 
-  try {
-    // Get the directory to which NPM links packages.
-    const NPM_PREFIX = execa.shellSync('npm prefix -g').stdout;
+  // Compute the root directory of the current package.
+  const PKG_ROOT = pkgDir.sync();
 
-    // Compute the root directory of the current package.
-    const PKG_ROOT = pkgDir.sync();
-
-    if (!PKG_ROOT) {
-      throw new Error('Unable to locate the package\'s root directory.');
-    }
-
-    // Compute the path to the current package's package.json.
-    const PKG_JSON_PATH = path.resolve(PKG_ROOT, 'package.json');
-
-    // Get the name of the current package.
-    const PKG_NAME = require(PKG_JSON_PATH).name;
-
-    // Compute the absolute path to where NPM would normally link this package.
-    const NPM_LINK_DIR = path.resolve(NPM_PREFIX, 'lib', 'node_modules', PKG_NAME);
-    log.info('target', NPM_LINK_DIR);
-
-    // Remove the link directory and re-create it.
-    fs.removeSync(NPM_LINK_DIR);
-    fs.ensureDirSync(NPM_LINK_DIR);
-
-    // Symlink package.json into the link directory.
-    const PKG_JSON_TARGET = path.resolve(NPM_LINK_DIR, 'package.json');
-    log.verbose('symlink', `${PKG_JSON_TARGET} => ${PKG_JSON_PATH}`);
-    fs.ensureSymlinkSync(PKG_JSON_PATH, PKG_JSON_TARGET);
-
-    // Symlink node_modules into the link directory.
-    const NODE_MODULES_PATH = path.resolve(PKG_ROOT, 'node_modules');
-    const NODE_MODULES_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules');
-    log.verbose('symlink', `${NODE_MODULES_TARGET} => ${NODE_MODULES_PATH}`);
-    fs.ensureSymlinkSync(NODE_MODULES_PATH, NODE_MODULES_TARGET);
-
-    const DIST_TARGET = path.resolve(NPM_LINK_DIR, options.distDir);
-    const BUILD_CMD = `npm run ${options.buildScript} -- --${options.watchArg} --${options.outDirArg}=${DIST_TARGET}`;
-    log.verbose('build cmd', BUILD_CMD);
-
-    execa.shellSync(BUILD_CMD, {stdio: 'inherit'});
-  } catch (err) {
-    log.error('', err.stack);
-    process.exit(1);
+  if (!PKG_ROOT) {
+    throw new Error('Unable to locate the package\'s root directory.');
   }
+
+  // Compute the path to the current package's package.json.
+  const PKG_JSON_PATH = path.resolve(PKG_ROOT, 'package.json');
+
+  const PKG_JSON = JSON.parse(fs.readFileSync(PKG_JSON_PATH, {encoding: 'utf8'}));
+
+  // throw new Error(`GOT JSON: ${JSON.stringify(PKG_JSON)}`);
+
+  if (!PKG_JSON.name) {
+    throw new Error('Package must have a "name" field to be linked.');
+  }
+
+  // Compute the absolute path to where NPM would normally link this package.
+  // throw new Error(`RESOLVE ARGS: ${[NPM_PREFIX, 'lib', 'node_modules', PKG_JSON.name]}`);
+  const NPM_LINK_DIR = path.resolve(NPM_PREFIX, 'lib', 'node_modules', PKG_JSON.name);
+  log.verbose('target', NPM_LINK_DIR);
+
+
+  // ----- Prepare Link Directory ----------------------------------------------
+
+  // Ensure the link directory exists, and then remove all of its contents.
+  log.verbose('dir', `Ensuring "${NPM_LINK_DIR}" exists.`);
+  fs.ensureDirSync(NPM_LINK_DIR);
+
+  log.verbose('rimraf', `Removing contents of "${NPM_LINK_DIR}".`);
+  rimraf.sync(`${NPM_LINK_DIR}/**`);
+
+
+  // ----- Symlink Package Manifest --------------------------------------------
+
+  const PKG_JSON_TARGET = path.resolve(NPM_LINK_DIR, 'package.json');
+  createSymlink(PKG_JSON_PATH, PKG_JSON_TARGET, 'file');
+
+
+  // ----- Symlink Dependencies ------------------------------------------------
+
+  const NODE_MODULES_PATH = path.resolve(PKG_ROOT, 'node_modules');
+  const NODE_MODULES_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules');
+  createSymlink(NODE_MODULES_PATH, NODE_MODULES_TARGET, 'dir');
+
+
+  // ----- Symlink Binaries ----------------------------------------------------
+
+  if (PKG_JSON.bin) {
+    if (typeof PKG_JSON.bin === 'string') {
+      // Handle cases where the package defines a single binary by symlinking
+      // <NPM prefix>/bin/<package name> to the value specified.
+      let parsedName: string;
+
+      // In cases where the package name is scoped (ie: '@scope/package-name),
+      // extract part after the scope (ie: 'package-name').
+      const parseResult = parsePackageName(PKG_JSON.name);
+
+      if (parseResult && parseResult.name) {
+        parsedName = parseResult.name;
+      } else {
+        throw new Error(`Invalid package name: "${PKG_JSON.name}"`);
+      }
+
+      const BIN_PATH = path.resolve(NPM_LINK_DIR, PKG_JSON.bin);
+      const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', parsedName);
+      createSymlink(BIN_PATH, BIN_TARGET, 'file');
+    } else if (typeof PKG_JSON.bin === 'object') {
+      // Handle cases where the package defines multiple binaries by
+      // symlinking <NPM prefix>/bin/<key> to each <value>.
+      Object.entries(PKG_JSON.bin).forEach(([binaryName, binaryPath]: [string, string]) => {
+        const BIN_PATH = path.resolve(NPM_LINK_DIR, binaryPath);
+        const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', binaryName);
+        createSymlink(BIN_PATH, BIN_TARGET, 'file');
+      });
+    } else {
+      throw new Error(`Expected type of "bin" field to be "string" or "object", got "${typeof PKG_JSON.bin}".`);
+    }
+  }
+
+  return NPM_LINK_DIR;
 }
