@@ -13,5 +13,13 @@ module.exports = {
   moduleFileExtensions: EXTENSIONS,
   transform: {
     [`^.+\\.(${EXTENSIONS.join('|')})$`]: 'babel-jest'
+  },
+  coverageThreshold: {
+    global: {
+      statements: 100,
+      branches: 95,
+      functions: 100,
+      lines: 100
+    }
   }
 };

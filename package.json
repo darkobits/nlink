@@ -30,7 +30,7 @@
     "test": "jest",
     "prebuild": "run-p clean check:*",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline --verbose",
-    "prebump": "run-p build",
+    "prebump": "run-p test build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta",
     "start": "nodemon --exec \"babel-node --extensions='.ts'\" src/index.ts"
