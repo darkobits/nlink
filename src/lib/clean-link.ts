@@ -37,14 +37,11 @@ export default function link(): string {
 
   const PKG_JSON = JSON.parse(fs.readFileSync(PKG_JSON_PATH, {encoding: 'utf8'}));
 
-  // throw new Error(`GOT JSON: ${JSON.stringify(PKG_JSON)}`);
-
   if (!PKG_JSON.name) {
     throw new Error('Package must have a "name" field to be linked.');
   }
 
   // Compute the absolute path to where NPM would normally link this package.
-  // throw new Error(`RESOLVE ARGS: ${[NPM_PREFIX, 'lib', 'node_modules', PKG_JSON.name]}`);
   const NPM_LINK_DIR = path.resolve(NPM_PREFIX, 'lib', 'node_modules', PKG_JSON.name);
   log.verbose('target', NPM_LINK_DIR);
 
