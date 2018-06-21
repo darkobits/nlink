@@ -64,9 +64,14 @@ export default function link(): string {
 
   // ----- Symlink Dependencies ------------------------------------------------
 
-  const NODE_MODULES_PATH = path.resolve(PKG_ROOT, 'node_modules');
-  const NODE_MODULES_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules');
-  createSymlink(NODE_MODULES_PATH, NODE_MODULES_TARGET, 'dir');
+  if (PKG_JSON.dependencies) {
+    // Only link the project's "dependencies"; "devDependencies" are not needed.
+    Object.keys(PKG_JSON.dependencies).forEach((dependency: string) => {
+      const DEPENDENCY_PATH = path.resolve(PKG_ROOT, 'node_modules', dependency);
+      const DEPENDENCY_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules', dependency);
+      createSymlink(DEPENDENCY_PATH, DEPENDENCY_TARGET, 'dir');
+    });
+  }
 
 
   // ----- Symlink Binaries ----------------------------------------------------
@@ -77,8 +82,8 @@ export default function link(): string {
       // <NPM prefix>/bin/<package name> to the value specified.
       let parsedName: string;
 
-      // In cases where the package name is scoped (ie: '@scope/package-name),
-      // extract part after the scope (ie: 'package-name').
+      // In cases where the package name is scoped (ie: '@scope/package-name'),
+      // extract the part after the scope (ie: 'package-name').
       const parseResult = parsePackageName(PKG_JSON.name);
 
       if (parseResult && parseResult.name) {

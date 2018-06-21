@@ -1,14 +1,16 @@
-// import cleanLink from './clean-link';
-
-
-
-
 describe('cleanLink', () => {
   let cleanLink: Function;
 
   const NPM_PREFIX = '/npm/prefix';
+
   const PKG_ROOT = '/pkg/root';
+
   const PKG_NAME = 'pkg-name';
+
+  const DEPENDENCIES = {
+    foo: '1.0',
+    bar: '2.0'
+  };
 
   let PKG_JSON: any;
 
@@ -75,6 +77,81 @@ describe('cleanLink', () => {
     cleanLink = require('./clean-link').default; // tslint:disable-line no-require-imports
   });
 
+  describe('creating symlinks', () => {
+    beforeEach(() => {
+      PKG_JSON = {
+        name: PKG_NAME,
+        dependencies: DEPENDENCIES
+      };
+    });
+
+    it('should create symlinks and return the link directory', () => {
+      const result = cleanLink();
+
+      expect(mocks.shellSync).toHaveBeenCalledWith('npm prefix -g');
+
+      expect(mocks.pkgDirSync).toHaveBeenCalled();
+
+      expect(mocks.readFileSync).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, {encoding: 'utf8'});
+
+      expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
+
+      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
+
+      expect(mocks.createSymlink).toHaveBeenCalledTimes(3);
+
+      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
+
+      Object.keys(DEPENDENCIES).forEach((dependency: string) => {
+        expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/node_modules/${dependency}`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/node_modules/${dependency}`, 'dir');
+      });
+
+      expect(result).toBe(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
+    });
+  });
+
+  describe('when the package has a string "bin" field', () => {
+    const BIN = 'dist/bin/cli.js';
+
+    beforeEach(() => {
+      PKG_JSON = {
+        ...PKG_JSON,
+        bin: BIN
+      };
+
+      cleanLink();
+    });
+
+    it('should create a symlink for the binary', () => {
+      expect(mocks.createSymlink).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/${BIN}`, `${NPM_PREFIX}/bin/${PKG_NAME}`, 'file');
+    });
+  });
+
+  describe('when the package has an object "bin" field', () => {
+    const BIN = {
+      foo: 'dist/bin/foo.js',
+      bar: 'dist/bin/bar.js'
+    };
+
+    beforeEach(() => {
+      PKG_JSON = {
+        ...PKG_JSON,
+        bin: BIN
+      };
+
+      cleanLink();
+    });
+
+    it('should create symlinks for each binary', () => {
+      Object.entries(BIN).forEach(([name, path]) => {
+        expect(mocks.createSymlink).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/${path}`, `${NPM_PREFIX}/bin/${name}`, 'file');
+      });
+    });
+  });
+
+
+  // ----- Error-Handling ------------------------------------------------------
+
   describe('when the package does not have a "package.json"', () => {
     beforeEach(() => {
       mocks.pkgDirSync.mockImplementation(() => false);
@@ -128,105 +205,6 @@ describe('cleanLink', () => {
       expect(() => {
         cleanLink();
       }).toThrow('Expected type of "bin" field to be "string" or "object", got "number".');
-    });
-  });
-
-  describe('when the package does not have a "bin" field', () => {
-    beforeEach(() => {
-      PKG_JSON = {
-        name: PKG_NAME
-      };
-    });
-
-    it('should create symlinks and return the link directory', () => {
-      const result = cleanLink();
-
-      expect(mocks.shellSync).toHaveBeenCalledWith('npm prefix -g');
-
-      expect(mocks.pkgDirSync).toHaveBeenCalled();
-
-      expect(mocks.readFileSync).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, {encoding: 'utf8'});
-
-      expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
-
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
-
-      expect(mocks.createSymlink).toHaveBeenCalledTimes(2);
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/node_modules`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/node_modules`, 'dir');
-
-      expect(result).toBe(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
-    });
-  });
-
-  describe('when the package has a string "bin" field', () => {
-    const BIN = 'dist/bin/cli.js';
-
-    beforeEach(() => {
-      PKG_JSON = {
-        ...PKG_JSON,
-        bin: BIN
-      };
-    });
-
-    it('should create symlinks and return the link directory', () => {
-      const result = cleanLink();
-
-      expect(mocks.shellSync).toHaveBeenCalledWith('npm prefix -g');
-
-      expect(mocks.pkgDirSync).toHaveBeenCalled();
-
-      expect(mocks.readFileSync).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, {encoding: 'utf8'});
-
-      expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
-
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
-
-      expect(mocks.createSymlink).toHaveBeenCalledTimes(3);
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/node_modules`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/node_modules`, 'dir');
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/${BIN}`, `${NPM_PREFIX}/bin/${PKG_NAME}`, 'file');
-
-      expect(result).toBe(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
-    });
-  });
-
-  describe('when the package has an object "bin" field', () => {
-    const BIN = {
-      foo: 'dist/bin/foo.js',
-      bar: 'dist/bin/bar.js'
-    };
-
-    beforeEach(() => {
-      PKG_JSON = {
-        ...PKG_JSON,
-        bin: BIN
-      };
-    });
-
-    it('should create symlinks for each binary and return the link directory', () => {
-      const result = cleanLink();
-
-      expect(mocks.shellSync).toHaveBeenCalledWith('npm prefix -g');
-
-      expect(mocks.pkgDirSync).toHaveBeenCalled();
-
-      expect(mocks.readFileSync).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, {encoding: 'utf8'});
-
-      expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
-
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
-
-      expect(mocks.createSymlink).toHaveBeenCalledTimes(4);
-
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
-      expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/node_modules`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/node_modules`, 'dir');
-
-      Object.entries(BIN).forEach(([name, path]) => {
-        expect(mocks.createSymlink).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/${path}`, `${NPM_PREFIX}/bin/${name}`, 'file');
-      });
-
-      expect(result).toBe(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
     });
   });
 });
