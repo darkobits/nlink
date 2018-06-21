@@ -121,7 +121,7 @@ export default function link(): string {
     }
 
     log.info('dep', 'Installing dependencies.');
-    execa.sync('npm', ['install', '--production', '--no-audit', '--ignore-scripts'], {
+    execa.sync('npm', ['install', '--production', '--no-audit'], {
       stdio: log.level === 'verbose' ? 'inherit' : 'ignore',
       cwd: NPM_LINK_DIR
     });
