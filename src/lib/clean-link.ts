@@ -121,11 +121,14 @@ export default function link(): string {
     }
 
     log.info('dep', 'Installing dependencies.');
-    execa.sync('npm', ['install', '--production']);
+    execa.sync('npm', ['install', '--production', '--no-audit', '--ignore-scripts'], {
+      stdio: log.level === 'verbose' ? 'inherit' : 'ignore',
+      cwd: NPM_LINK_DIR
+    });
   }
 
   const prepTime = convertHrtime(process.hrtime(startTime)).seconds;
-  log.verbose('prep', `Done in ${prepTime.toFixed(2)}s.`);
+  log.info('prep', `Done in ${prepTime.toFixed(2)}s.`);
 
   return NPM_LINK_DIR;
 }
