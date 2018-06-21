@@ -1,6 +1,6 @@
 {
   "name": "@darkobits/clean-link",
-  "version": "2.1.0-beta.2",
+  "version": "2.1.0-beta.3",
   "author": "darkobits",
   "description": "🔗 Improved 'npm link'.",
   "license": "WTFPL",
@@ -30,7 +30,7 @@
     "test": "jest",
     "prebuild": "run-p clean check:*",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline --verbose",
-    "prebump": "run-p test build",
+    "prebump": "run-p build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta",
     "start": "nodemon --exec \"babel-node --extensions='.ts'\" src/index.ts"
