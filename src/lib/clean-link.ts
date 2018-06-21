@@ -112,13 +112,15 @@ export default function link(): string {
   // ----- Install Dependencies ------------------------------------------------
 
   if (PKG_JSON.dependencies) {
-    const PKG_LOCK_PATH = path.resolve(PKG_ROOT, 'package-lock.json');
+    // This has been disabled until https://github.com/npm/npm/issues/13528 is
+    // resolved.
+    // const PKG_LOCK_PATH = path.resolve(PKG_ROOT, 'package-lock.json');
 
-    if (fs.pathExistsSync(PKG_LOCK_PATH)) {
-      const PKG_LOCK_TARGET = path.resolve(NPM_LINK_DIR, 'package-lock.json');
-      log.info('pkg', 'Symlinking "package-lock.json".');
-      createSymlink(PKG_LOCK_PATH, PKG_LOCK_TARGET, 'file');
-    }
+    // if (fs.pathExistsSync(PKG_LOCK_PATH)) {
+    //   const PKG_LOCK_TARGET = path.resolve(NPM_LINK_DIR, 'package-lock.json');
+    //   log.info('pkg', 'Symlinking "package-lock.json".');
+    //   createSymlink(PKG_LOCK_PATH, PKG_LOCK_TARGET, 'file');
+    // }
 
     log.info('dep', 'Installing dependencies.');
     execa.shellSync('npm install --production --no-audit', {
