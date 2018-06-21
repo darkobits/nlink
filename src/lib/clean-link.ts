@@ -1,9 +1,10 @@
 import path from 'path';
 
+import convertHrtime from 'convert-hrtime';
+import del from 'del';
 import execa from 'execa';
 import fs from 'fs-extra';
 import pkgDir from 'pkg-dir';
-import rimraf from 'rimraf';
 
 import createSymlink from 'lib/create-symlink';
 import log from 'lib/log';
@@ -22,6 +23,9 @@ import parsePackageName from 'lib/parse-package-name';
  * build artifacts.
  */
 export default function link(): string {
+  // Mark start time.
+  const startTime = process.hrtime();
+
   // Get the directory to which NPM links packages.
   const NPM_PREFIX = execa.shellSync('npm prefix -g').stdout;
 
@@ -53,8 +57,12 @@ export default function link(): string {
   log.info('dir', `Creating "${NPM_LINK_DIR}".`);
   fs.ensureDirSync(NPM_LINK_DIR);
 
-  log.verbose('rimraf', `Removing contents of "${NPM_LINK_DIR}".`);
-  rimraf.sync(`${NPM_LINK_DIR}/**`);
+  log.verbose('del', `Removing non-dependency contents of "${NPM_LINK_DIR}".`);
+  del.sync([`${NPM_LINK_DIR}/*`, `!${NPM_LINK_DIR}/node_modules`], {
+    // This is necessary in order to remove files outside of the current working
+    // directory.
+    force: true
+  });
 
 
   // ----- Symlink Package Manifest --------------------------------------------
@@ -62,19 +70,6 @@ export default function link(): string {
   const PKG_JSON_TARGET = path.resolve(NPM_LINK_DIR, 'package.json');
   log.info('pkg', 'Symlinking "package.json".');
   createSymlink(PKG_JSON_PATH, PKG_JSON_TARGET, 'file');
-
-
-  // ----- Symlink Dependencies ------------------------------------------------
-
-  if (PKG_JSON.dependencies) {
-    // Only link the project's "dependencies"; "devDependencies" are not needed.
-    Object.keys(PKG_JSON.dependencies).forEach((dependency: string) => {
-      const DEPENDENCY_PATH = path.resolve(PKG_ROOT, 'node_modules', dependency);
-      const DEPENDENCY_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules', dependency);
-      log.info('dep', `Symlinking dependency "${dependency}"`);
-      createSymlink(DEPENDENCY_PATH, DEPENDENCY_TARGET, 'dir');
-    });
-  }
 
 
   // ----- Symlink Binaries ----------------------------------------------------
@@ -112,6 +107,25 @@ export default function link(): string {
       throw new Error(`Expected type of "bin" field to be "string" or "object", got "${typeof PKG_JSON.bin}".`);
     }
   }
+
+
+  // ----- Install Dependencies ------------------------------------------------
+
+  if (PKG_JSON.dependencies) {
+    const PKG_LOCK_PATH = path.resolve(PKG_ROOT, 'package-lock.json');
+
+    if (fs.pathExistsSync(PKG_LOCK_PATH)) {
+      const PKG_LOCK_TARGET = path.resolve(NPM_LINK_DIR, 'package-lock.json');
+      log.info('pkg', 'Symlinking "package-lock.json".');
+      createSymlink(PKG_LOCK_PATH, PKG_LOCK_TARGET, 'file');
+    }
+
+    log.info('dep', 'Installing dependencies.');
+    execa.sync('npm', ['install', '--production']);
+  }
+
+  const prepTime = convertHrtime(process.hrtime(startTime)).seconds;
+  log.verbose('prep', `Done in ${prepTime.toFixed(2)}s.`);
 
   return NPM_LINK_DIR;
 }
