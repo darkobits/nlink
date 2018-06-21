@@ -50,6 +50,7 @@ export default function link(): string {
 
   // Ensure the link directory exists, and then remove all of its contents.
   log.verbose('dir', `Ensuring "${NPM_LINK_DIR}" exists.`);
+  log.info('dir', `Creating "${NPM_LINK_DIR}".`);
   fs.ensureDirSync(NPM_LINK_DIR);
 
   log.verbose('rimraf', `Removing contents of "${NPM_LINK_DIR}".`);
@@ -59,6 +60,7 @@ export default function link(): string {
   // ----- Symlink Package Manifest --------------------------------------------
 
   const PKG_JSON_TARGET = path.resolve(NPM_LINK_DIR, 'package.json');
+  log.info('pkg', 'Symlinking "package.json".');
   createSymlink(PKG_JSON_PATH, PKG_JSON_TARGET, 'file');
 
 
@@ -69,6 +71,7 @@ export default function link(): string {
     Object.keys(PKG_JSON.dependencies).forEach((dependency: string) => {
       const DEPENDENCY_PATH = path.resolve(PKG_ROOT, 'node_modules', dependency);
       const DEPENDENCY_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules', dependency);
+      log.info('dep', `Symlinking dependency "${dependency}"`);
       createSymlink(DEPENDENCY_PATH, DEPENDENCY_TARGET, 'dir');
     });
   }
@@ -94,6 +97,7 @@ export default function link(): string {
 
       const BIN_PATH = path.resolve(NPM_LINK_DIR, PKG_JSON.bin);
       const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', parsedName);
+      log.info('bin', `Symlinking binary "${parsedName}".`);
       createSymlink(BIN_PATH, BIN_TARGET, 'file');
     } else if (typeof PKG_JSON.bin === 'object') {
       // Handle cases where the package defines multiple binaries by
@@ -101,6 +105,7 @@ export default function link(): string {
       Object.entries(PKG_JSON.bin).forEach(([binaryName, binaryPath]: [string, string]) => {
         const BIN_PATH = path.resolve(NPM_LINK_DIR, binaryPath);
         const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', binaryName);
+        log.info('bin', `Symlinking binary "${binaryName}".`);
         createSymlink(BIN_PATH, BIN_TARGET, 'file');
       });
     } else {
