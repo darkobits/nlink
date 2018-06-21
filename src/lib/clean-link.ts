@@ -112,8 +112,11 @@ export default function link(): string {
   // ----- Install Dependencies ------------------------------------------------
 
   if (PKG_JSON.dependencies) {
-    // This has been disabled until https://github.com/npm/npm/issues/13528 is
-    // resolved.
+    /**
+     * This has been disabled until https://github.com/npm/npm/issues/13528 is
+     * resolved.
+     */
+
     // const PKG_LOCK_PATH = path.resolve(PKG_ROOT, 'package-lock.json');
 
     // if (fs.pathExistsSync(PKG_LOCK_PATH)) {
@@ -124,7 +127,7 @@ export default function link(): string {
 
     log.info('dep', 'Installing dependencies.');
     execa.shellSync('npm install --production --no-audit', {
-      stdio: log.level === 'verbose' ? 'inherit' : 'ignore',
+      stdio: ['ignore', 'ignore', log.level === 'verbose' ? 'inherit' : 'ignore'],
       cwd: NPM_LINK_DIR
     });
   }
