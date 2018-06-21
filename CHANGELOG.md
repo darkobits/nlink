@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.1.0-beta.7"></a>
+# [2.1.0-beta.7](https://github.com/darkobits/clean-link/compare/v2.1.0-beta.6...v2.1.0-beta.7) (2018-06-21)
+
+
+
 <a name="2.1.0-beta.6"></a>
 # [2.1.0-beta.6](https://github.com/darkobits/clean-link/compare/v2.1.0-beta.5...v2.1.0-beta.6) (2018-06-21)
 
