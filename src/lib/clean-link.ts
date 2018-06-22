@@ -1,9 +1,9 @@
 import path from 'path';
 
+import del from 'del';
 import execa from 'execa';
 import fs from 'fs-extra';
 import pkgDir from 'pkg-dir';
-import rimraf from 'rimraf';
 
 import createSymlink from 'lib/create-symlink';
 import log from 'lib/log';
@@ -12,7 +12,7 @@ import parsePackageName from 'lib/parse-package-name';
 
 /**
  * Replacement for 'npm link' that creates an output directory that only
- * contains files essential for the package to run, rather than linking the
+ * contains files essential for the package to run, rather than the
  * entire project directory.
  *
  * - package.json
@@ -25,16 +25,17 @@ export default function link(): string {
   // Get the directory to which NPM links packages.
   const NPM_PREFIX = execa.shellSync('npm prefix -g').stdout;
 
-  // Compute the root directory of the current package.
+  // Compute the root directory of the host package.
   const PKG_ROOT = pkgDir.sync();
 
   if (!PKG_ROOT) {
     throw new Error('Unable to locate the package\'s root directory.');
   }
 
-  // Compute the path to the current package's package.json.
+  // Compute the path to the host package's package.json.
   const PKG_JSON_PATH = path.resolve(PKG_ROOT, 'package.json');
 
+  // Load the host package's package.json.
   const PKG_JSON = JSON.parse(fs.readFileSync(PKG_JSON_PATH, {encoding: 'utf8'}));
 
   if (!PKG_JSON.name) {
@@ -52,13 +53,18 @@ export default function link(): string {
   log.verbose('dir', `Ensuring "${NPM_LINK_DIR}" exists.`);
   fs.ensureDirSync(NPM_LINK_DIR);
 
-  log.verbose('rimraf', `Removing contents of "${NPM_LINK_DIR}".`);
-  rimraf.sync(`${NPM_LINK_DIR}/**`);
+  log.verbose('del', `Removing contents of "${NPM_LINK_DIR}".`);
+  del.sync([`${NPM_LINK_DIR}/*`], {
+    // This is necessary in order to remove files outside of the current working
+    // directory.
+    force: true
+  });
 
 
   // ----- Symlink Package Manifest --------------------------------------------
 
   const PKG_JSON_TARGET = path.resolve(NPM_LINK_DIR, 'package.json');
+  log.info('sym', `${PKG_JSON_TARGET} -> ${PKG_JSON_PATH}`);
   createSymlink(PKG_JSON_PATH, PKG_JSON_TARGET, 'file');
 
 
@@ -66,6 +72,7 @@ export default function link(): string {
 
   const NODE_MODULES_PATH = path.resolve(PKG_ROOT, 'node_modules');
   const NODE_MODULES_TARGET = path.resolve(NPM_LINK_DIR, 'node_modules');
+  log.info('sym', `${NODE_MODULES_TARGET} -> ${NODE_MODULES_PATH}`);
   createSymlink(NODE_MODULES_PATH, NODE_MODULES_TARGET, 'dir');
 
 
@@ -89,13 +96,15 @@ export default function link(): string {
 
       const BIN_PATH = path.resolve(NPM_LINK_DIR, PKG_JSON.bin);
       const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', parsedName);
+      log.info('sym', `${BIN_TARGET} -> ${BIN_PATH}`);
       createSymlink(BIN_PATH, BIN_TARGET, 'file');
     } else if (typeof PKG_JSON.bin === 'object') {
       // Handle cases where the package defines multiple binaries by
-      // symlinking <NPM prefix>/bin/<key> to each <value>.
+      // sym<NPM prefix>/bin/<key> to each <value>.
       Object.entries(PKG_JSON.bin).forEach(([binaryName, binaryPath]: [string, string]) => {
         const BIN_PATH = path.resolve(NPM_LINK_DIR, binaryPath);
         const BIN_TARGET = path.resolve(NPM_PREFIX, 'bin', binaryName);
+        log.info('sym', `${BIN_TARGET} -> ${BIN_PATH}`);
         createSymlink(BIN_PATH, BIN_TARGET, 'file');
       });
     } else {

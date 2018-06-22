@@ -57,13 +57,13 @@ describe('cleanLink', () => {
       };
     });
 
-    jest.doMock('rimraf', () => {
-      mocks.rimrafSync = jest.fn(() => {
+    jest.doMock('del', () => {
+      mocks.delSync = jest.fn(() => {
         return;
       });
 
       return {
-        sync: mocks.rimrafSync
+        sync: mocks.delSync
       };
     });
 
@@ -149,7 +149,7 @@ describe('cleanLink', () => {
 
       expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
 
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
+      expect(mocks.delSync).toHaveBeenCalledWith([`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/*`], {force: true});
 
       expect(mocks.createSymlink).toHaveBeenCalledTimes(2);
       expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
@@ -180,7 +180,7 @@ describe('cleanLink', () => {
 
       expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
 
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
+      expect(mocks.delSync).toHaveBeenCalledWith([`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/*`], {force: true});
 
       expect(mocks.createSymlink).toHaveBeenCalledTimes(3);
       expect(mocks.createSymlink).toHaveBeenCalledWith(`${PKG_ROOT}/package.json`, `${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/package.json`, 'file');
@@ -215,7 +215,7 @@ describe('cleanLink', () => {
 
       expect(mocks.ensureDirSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}`);
 
-      expect(mocks.rimrafSync).toHaveBeenCalledWith(`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/**`);
+      expect(mocks.delSync).toHaveBeenCalledWith([`${NPM_PREFIX}/lib/node_modules/${PKG_NAME}/*`], {force: true});
 
       expect(mocks.createSymlink).toHaveBeenCalledTimes(4);
 
