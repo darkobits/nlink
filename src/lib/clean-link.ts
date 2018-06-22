@@ -112,5 +112,6 @@ export default function link(): string {
     }
   }
 
+  log.info('dir', `Returning build target "${NPM_LINK_DIR}".`);
   return NPM_LINK_DIR;
 }
