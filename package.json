@@ -1,6 +1,6 @@
 {
   "name": "@darkobits/nlink",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "author": "darkobits",
   "description": "Improved 'npm link'.",
   "license": "WTFPL",
@@ -31,7 +31,7 @@
     "prebuild": "del dist && run-p lint tsc",
     "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=true --verbose",
     "postbuild": "del dist/**/*.spec.*",
-    "prebump": "run-p test build",
+    "prebump": "run-p build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta"
   },
