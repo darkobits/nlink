@@ -20,8 +20,6 @@ It is especially useful for local development in large monorepos.
 npm install --save-dev @darkobits/nlink
 ```
 
-Then, use the `nlink` command anywhere in your package scripts. See below for an example.
-
 # Use
 
 ## CLI
