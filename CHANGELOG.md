@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/darkobits/nlink/compare/v3.0.0...v3.0.1) (2019-01-10)
+
+
+### Bug Fixes
+
+* Use removeSync on directories. ([64d2e5f](https://github.com/darkobits/nlink/commit/64d2e5f))
+
+
 
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/darkobits/nlink/compare/v2.0.1...v3.0.0) (2019-01-10)
