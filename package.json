@@ -1,5 +1,5 @@
 {
-  "name": "@darkobits/clean-link",
+  "name": "@darkobits/nlink",
   "version": "2.0.1",
   "author": "darkobits",
   "description": "Improved 'npm link'.",
@@ -16,44 +16,49 @@
     "build",
     "symlink"
   ],
-  "bin": {
-    "clean-link-dir": "dist/bin/cli.js"
-  },
-  "main": "dist/index.js",
   "files": [
     "dist"
   ],
+  "bin": {
+    "nlink": "dist/bin/cli.js"
+  },
+  "main": "dist/index.js",
   "scripts": {
     "clean": "del dist",
-    "check:styles": "tslint --project tsconfig.json --format codeFrame",
-    "check:types": "tsc --emitDeclarationOnly && rimraf **/*.spec.d.ts",
+    "lint": "tslint --project tsconfig.json --format codeFrame",
+    "tsc": "tsc --emitDeclarationOnly --pretty",
     "test": "jest",
-    "prebuild": "run-p clean check:*",
-    "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=inline --verbose",
+    "prebuild": "del dist && run-p lint tsc",
+    "build": "babel src --extensions='.ts' --ignore='**/*.spec.ts,**/*.d.ts' --out-dir=dist --source-maps=true --verbose",
+    "postbuild": "del dist/**/*.spec.*",
     "prebump": "run-p test build",
     "bump": "standard-version",
     "bump:beta": "npm run prebump && standard-version --prerelease=beta"
   },
   "dependencies": {
     "@darkobits/log": "^1.1.3",
-    "death": "^1.1.0",
-    "del": "^3.0.0",
+    "chalk": "^2.4.2",
     "execa": "^1.0.0",
+    "find-up": "^3.0.0",
     "fs-extra": "^7.0.1",
+    "minimatch": "^3.0.4",
     "pkg-dir": "^3.0.0",
+    "read-pkg-up": "^4.0.0",
     "yargs": "^12.0.5"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.6",
-    "@babel/preset-env": "^7.1.6",
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
     "@babel/preset-typescript": "^7.1.0",
-    "@types/del": "^3.0.1",
     "@types/execa": "^0.9.0",
+    "@types/find-up": "^2.1.1",
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^23.3.9",
-    "@types/node": "^10.12.10",
+    "@types/jest": "^23.3.10",
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^10.12.12",
     "@types/pkg-dir": "^2.0.0",
+    "@types/read-pkg-up": "^3.0.1",
     "@types/yargs": "^12.0.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.6.0",
@@ -64,6 +69,6 @@
     "standard-version": "^4.4.0",
     "tslint": "^5.11.0",
     "tslint-xo": "^0.10.0",
-    "typescript": "^3.1.6"
+    "typescript": "^3.2.2"
   }
 }

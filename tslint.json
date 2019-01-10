@@ -5,9 +5,11 @@
 		"array-type": [true, "generic"],
 
 		// Do not enforce formatting rules for single-line comments.
-		"comment-format": false,
+    "comment-format": false,
 
-		// Allow multiple consecutive blank lines.
+    "early-exit": false,
+
+    // Allow multiple consecutive blank lines.
 		"no-consecutive-blank-lines": false,
 
 		// Allow importing modules that are not listed as a dependency in the

@@ -1,90 +1,79 @@
 <a href="#top" id="top">
-  <img src="https://user-images.githubusercontent.com/441546/41694444-37ee5552-74bf-11e8-991c-12ac9128dd84.png" style="max-width: 100%;">
+  <img src="https://user-images.githubusercontent.com/441546/50995078-db831780-14d2-11e9-9076-d74a255b1400.png" style="max-width: 100%;">
 </a>
 <p align="center">
-  <a href="https://www.npmjs.com/package/@darkobits/clean-link"><img src="https://img.shields.io/npm/v/@darkobits/clean-link.svg?style=flat-square"></a>
-  <a href="https://travis-ci.org/darkobits/clean-link"><img src="https://img.shields.io/travis/darkobits/clean-link.svg?style=flat-square"></a>
-  <a href="https://www.codacy.com/app/darkobits/clean-link"><img src="https://img.shields.io/codacy/coverage/0f633a69424344b49ecf5b045903f44b.svg?style=flat-square"></a>
-  <a href="https://david-dm.org/darkobits/clean-link"><img src="https://img.shields.io/david/darkobits/clean-link.svg?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/@darkobits/nlink"><img src="https://img.shields.io/npm/v/@darkobits/nlink.svg?style=flat-square"></a>
+  <a href="https://travis-ci.org/darkobits/nlink"><img src="https://img.shields.io/travis/darkobits/nlink.svg?style=flat-square"></a>
+  <a href="https://www.codacy.com/app/darkobits/nlink"><img src="https://img.shields.io/codacy/coverage/0f633a69424344b49ecf5b045903f44b.svg?style=flat-square"></a>
+  <a href="https://david-dm.org/darkobits/nlink"><img src="https://img.shields.io/david/darkobits/nlink.svg?style=flat-square"></a>
   <a href="https://github.com/conventional-changelog/standard-version"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-027dc6.svg?style=flat-square"></a>
   <a href="https://github.com/sindresorhus/xo"><img src="https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square"></a>
 </p>
 
+This tool is intended to be a suppliment to `npm link` in certain exotic cases where `npm link` doesn't do exactly what you want it to do.
+
+It is especially useful for local development in large monorepos.
+
 # Install
 
 ```
-npm install --save-dev @darkobits/clean-link
+npm install --save-dev @darkobits/nlink
 ```
 
-Then, use the `clean-link-dir` script anywhere in your package scripts. See below for an example.
+Then, use the `nlink` command anywhere in your package scripts. See below for an example.
 
 # Use
 
-[`npm link`](https://docs.npmjs.com/cli/link) is a handy utility for developing libraries / frameworks / tooling and ensuring they work with their dependents.
+## CLI
 
-Given a hypothetical library, **foo-lib**, and a hypothetical dependent, **bar-app**, a common workflow involves something like the following:
+`nlink` has the same API as [`npm link`](https://docs.npmjs.com/cli/link.html), which has two modes of operation:
 
-1. Run `npm link` from the **foo-lib** project folder.
-2. Start **foo-lib**'s build script in watch mode.
-3. Run `npm link foo-lib` from the **bar-app** project folder.
-4. Make changes to **foo-lib**'s source.
-5. Verify these changes didn't break anything in **bar-app**.
-6. ????
-6. Profit!! 💰
+### `nlink [options]`
 
-This nice workflow can get a little wonky under certain circumstances, however. Consider the following case:
+Like `npm link`, this command should be run from a package you wish to link-to elsewhere.
 
-- **bar-app** is compiled with Babel 6.x.
-- **foo-lib** is compiled with Babel 7.x.
-- **foo-lib** is `npm link`-ed into **bar-app**.
+Unlike `npm link`, which symlinks the entire package folder, `nlink` _creates_ a folder and then symlinks only the following items into it:
 
-If you try to run **bar-app**, you will get the following error:
+* `packge.json`
+* `node_modules`
+* Anything declared in `"files"` in `package.json`.
+* Anything declared in `"bin"` in `package.json`.
+
+These behaviors are configurable. See `--help` for CLI options.
+
+### `nlink <packageOrPattern>`
+
+Like `npm link <package name>`, but supports globbing to link several packages at once.
+
+Note: This uses [`minimatch`](https://github.com/isaacs/minimatch) under the hood, which was designed to work primarily with filesystems. Therefore, treat scoped packages like a directory structure.
+
+To match all `@babel`-scoped packages, you will need a globstar:
 
 ```
-Error: Requires Babel "^7.x.x", but was loaded with "6.x.x". If you are sure you
-have a compatible version of @babel/core, it is likely that something in your
-build process is loading the wrong version. Inspect the stack trace of this
-error to look for the first entry that doesn't mention "@babel/core" or
-"babel-core" to see what is calling Babel.
+nlink '@babel/**'
 ```
 
-That's definitely a [bad-time][bad-time-url], mate. What's going on here? We don't need the files for **foo-lib** transpiled, they already have been!
+To link `@babel/core` and any Babel plugins, but no other Babel packages:
 
-This is happening because the copy of Babel in **bar-app** can see the `.babelrc` file in **foo-lib** because NPM symlinks the _entire project folder_ into **bar-app**'s `node_modules`. If we published **foo-lib** in its current state and `npm install`-ed it in **bar-app** normally, we would not encounter this and similar kinds of errors.
-
-And, because Babel has [a bug](https://github.com/babel/babel/issues/5532) with `ignore`, we can't simply `--ignore=node_modules` from **bar-app**. What we really want is to *hide* **foo-lib**'s `.babelrc` (and everything else that would not be included in a distribution) from **bar-app**, because developing in an environment that is as close as possible to production `===` 👍.
-
-That's what `clean-link` does. Instead of symlink-ing your entire project, it only symlinks `package.json`, `node_modules` , and any `bin` files your project may specify. Then, it returns the path to this nice, clean workspace which you can then write your build artifacts to. In practice, that might look something like this:
-
-```js
-{
-  "name": "foo-lib",
-  "version": "1.0.0",
-  "files": [
-    "dist"
-  ],
-  "main": "dist/index.js",
-  "scripts": {
-    // Our normal build script writes files to 'dist'.
-    "build": "babel src --out-dir=dist",
-    // 'npm run link' will write files to something like '/usr/local/lib/node_modules/foo-lib/dist'
-    // and update it when we make changes.
-    "link": "npm run build -- --out-dir=$(npx clean-link-dir)/dist --watch"
-  }
-  // etc...
-}
+```
+nlink '@babel/{core,plugin*}'
 ```
 
-Now, when we run `npm link foo-lib` from **bar-app**, we only get the files we need, and everything is copacetic. 🕶
+## Node API
 
-## Debugging
+Both functions used by the CLI are available for programmatic use. Please refer to the source for specifics.
 
-This package respects the `LOG_LEVEL` environment variable, and uses the standard [NPM log levels](https://github.com/npm/npmlog#loglevelprefix-message-). For more verbose output, try `LOG_LEVEL=verbose npm run <script that uses clean-link-dir>`.
+# Debugging
 
-<br>
+This package respects the `LOG_LEVEL` environment variable, and uses the standard [NPM log levels](https://github.com/npm/npmlog#loglevelprefix-message-). For more verbose output, try `LOG_LEVEL=verbose npm run <script that uses nlink-dir>`.
+
+Additionally, you may pass `--dry-run` to either form of the command, which will automatically enable more verbose logging.
+
+## &nbsp;
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/441546/41495073-e120a3cc-70d3-11e8-81da-35f59501cd0e.jpg" width="250">
+  <img src="https://user-images.githubusercontent.com/441546/41495073-e120a3cc-70d3-11e8-81da-35f59501cd0e.jpg" width="250"><br>
+  Happy linking!
 </p>
 
 ## &nbsp;
