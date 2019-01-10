@@ -43,7 +43,7 @@ These behaviors are configurable. See `--help` for CLI options.
 
 ### `nlink <packageOrPattern>`
 
-Like `npm link <package name>`, but supports globbing to link several packages at once.
+Like `npm link <package name>`, but supports globbing to link several packages at once. Patterns are matched against the contents of `package-lock.json`. This means that (1) it is possible to match against transient dependencies but (2) your project must have a `package-lock.json`.
 
 Note: This uses [`minimatch`](https://github.com/isaacs/minimatch) under the hood, which was designed to work primarily with filesystems. Therefore, treat scoped packages like a directory structure.
 
