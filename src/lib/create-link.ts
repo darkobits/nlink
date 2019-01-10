@@ -56,10 +56,10 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
     } else {
       // Target link directory exists and is NOT a symbolic link. Assume it was
       // created by us, and remove it.
-      log.verbose('', 'Removing contents of target directory???');
+      log.info('', `${chalk.dim('Removing existing directory at:')} ${chalk.green(linkPaths.pkg.link)}`);
 
       if (!opts.dryRun) {
-        fs.unlinkSync(linkPaths.pkg.link);
+        fs.removeSync(linkPaths.pkg.link);
       }
     }
   }

@@ -6,15 +6,16 @@
   "license": "WTFPL",
   "repository": {
     "type": "git",
-    "url": "https://github.com/darkobits/clean-link.git"
+    "url": "https://github.com/darkobits/nlink.git"
   },
   "keywords": [
     "npm",
     "link",
     "npm-link",
     "improved",
-    "build",
-    "symlink"
+    "symlink",
+    "lerna",
+    "monorepo"
   ],
   "files": [
     "dist"
