@@ -55,7 +55,7 @@ yargs.help();
 
 
 try {
-  const args = yargs.argv as (Arguments & CreateLinkOptions);
+  const args = yargs.argv as Arguments<CreateLinkOptions>;
   const [packageOrPattern] = args._;
 
   if (args.dryRun) {
