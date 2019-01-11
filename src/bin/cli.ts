@@ -8,9 +8,9 @@ import linkAll from 'lib/link-all';
 import log from 'lib/log';
 
 
-yargs.usage('$0 [packageOrPattern] (Link one or more packages into the local package.)');
+yargs.usage('$0 [packageOrPattern] (Link to one or more packages.)');
 
-yargs.usage('$0 [flags] (Link the local package to the global folder.)');
+yargs.usage('$0 [flags] (Make the local package linkable.)');
 
 yargs.option('manifest', {
   description: 'Whether to symlink the host package\'s manifest (package.json). [Default: true]',
@@ -42,8 +42,8 @@ yargs.option('dryRun', {
   required: false
 });
 
-yargs.example('nlink --files=false', 'Link the local package, but do not link the "files" declared in its package.json.');
-yargs.example('nlink "@babel/*"', 'Link to all packages matching "@babel/');
+yargs.example('nlink --files=false', 'Make the local package linkable, but do not symlink the "files" declared in its package.json.');
+yargs.example('nlink "@babel/**"', 'Link to all packages matching "@babel/".');
 
 yargs.epilogue('For more information, see: https://docs.npmjs.com/cli/link.html');
 

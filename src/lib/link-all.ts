@@ -37,7 +37,7 @@ function isValidPackageName(name: string): boolean {
  * Replacement for 'npm link <package>' that can match multiple packages using
  * globs.
  */
-export default function linkAll(pattern: string, userOpts: any = {}) {
+export default function linkAll(packageOrPattern: string, userOpts: any = {}) {
   const opts = {
     cwd: process.cwd(),
     dryRun: false,
@@ -48,22 +48,14 @@ export default function linkAll(pattern: string, userOpts: any = {}) {
     log.info('', chalk.dim('Performing a dry run.'));
   }
 
-  // const lockfilePath = findUp.sync('package-lock.json', {cwd: opts.cwd});
-
-  // if (!lockfilePath) {
-  //   throw new Error('Unable to find "package-lock.json".');
-  // }
-
-  // const {dependencies} = require(lockfilePath);
-
   const dependencies = getDependenciesFromLockfile(opts.cwd);
 
-  const packagesToLink = dependencies.filter(minimatch.filter(pattern));
+  const packagesToLink = dependencies.filter(minimatch.filter(packageOrPattern));
 
   if (!packagesToLink.length) {
-    if (isValidPackageName(pattern)) {
+    if (isValidPackageName(packageOrPattern)) {
       log.verbose('', chalk.dim('Input did not match any dependencies, but is a valid package name; treating as explicit.'));
-      packagesToLink.push(pattern);
+      packagesToLink.push(packageOrPattern);
     } else {
       log.error('', chalk.dim('Input did not match any dependencies and is not a valid package name; aborting.'));
       return;
