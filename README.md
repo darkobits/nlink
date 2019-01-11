@@ -37,15 +37,27 @@ Unlike `npm link`, which symlinks the entire package folder, `nlink` _creates_ a
 * Anything declared in `"files"` in `package.json`.
 * Anything declared in `"bin"` in `package.json`.
 
-These behaviors are configurable. See `--help` for CLI options.
+This creates a more "production-like" environment for the linked package, which helps to avoid issues that can sometimes arise when the entire project's source folder is linked.
+
+To create a linkable package, but skip linking binaries:
+
+```
+nlink --bin=false
+```
+
+These behaviors are configurable. For a full list of options, see `--help`.
 
 ### `nlink <packageOrPattern>`
 
-Like `npm link <package name>`, but supports globbing to link several packages at once. Patterns are matched against the contents of `package-lock.json`. This means that (1) it is possible to match against transient dependencies but (2) your project must have a `package-lock.json`.
+Like `npm link <package name>`, but supports globbing to link several packages at once.
 
-Note: This uses [`minimatch`](https://github.com/isaacs/minimatch) under the hood, which was designed to work primarily with filesystems. Therefore, treat scoped packages like a directory structure.
+Patterns are matched against the contents of `package-lock.json`. If the project does not have a `package-lock.json`, or if the provided input does not match any dependencies therein, `nlink` will fall-back to treating the input as an explicit package name. In this case, if the input is a [valid NPM package name](https://github.com/npm/validate-npm-package-name), `nlink` will attempt to link to it. If an invalid name or glob pattern was provided, `nlink` will abort.
 
-To match all `@babel`-scoped packages, you will need a globstar:
+Because `nlink` matches against a project's lockfile, it is possible to link to transient dependencies.
+
+**Note:** This command uses [`minimatch`](https://github.com/isaacs/minimatch) under the hood, which was designed to work primarily with filesystems. Therefore, treat scoped packages like a directory structure.
+
+For example, to match all `@babel`-scoped packages, you will need a globstar:
 
 ```
 nlink '@babel/**'
