@@ -75,7 +75,7 @@ Both functions used by the CLI are available for programmatic use. Please refer 
 
 # Debugging
 
-This package respects the `LOG_LEVEL` environment variable, and uses the standard [NPM log levels](https://github.com/npm/npmlog#loglevelprefix-message-). For more verbose output, try `LOG_LEVEL=verbose npm run <script that uses nlink-dir>`.
+This package respects the `LOG_LEVEL` environment variable, and uses the standard [NPM log levels](https://github.com/npm/npmlog#loglevelprefix-message-). For more verbose output, try `LOG_LEVEL=silly nlink ...`.
 
 Additionally, you may pass `--dry-run` to either form of the command, which will automatically enable more verbose logging.
 
