@@ -11,7 +11,7 @@ import {NpmLinkPaths} from '../etc/types';
 /**
  * Returns the platform-dependent path prefix NPM uses when linking packages.
  *
- * On POXIS systems, this is something like: "/usr/local"
+ * On POSIX systems, this is something like: "/usr/local"
  * On Windows, this is something like: "C:\Users\<username>\AppData\Roaming\npm"
  *
  * This is configurable by the user, so it should always be obtained
