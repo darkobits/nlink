@@ -1,6 +1,5 @@
 import path from 'path';
 
-import chalk from 'chalk';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
 
@@ -14,7 +13,7 @@ import {getNpmLinkPaths, introspectPath} from 'lib/utils';
  * contains files essential for the package to run, rather than the entire
  * project directory.
  */
-export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
+export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {}) {
   // Merge user-provided options with defaults.
   const opts: CreateLinkOptions = {
     manifest: true,
@@ -33,10 +32,10 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
   }
 
   if (opts.dryRun) {
-    log.info('', chalk.dim('Performing dry-run.'));
+    log.info('', log.chalk.dim('Performing dry-run.'));
   }
 
-  log.verbose('', `${chalk.dim('Package name:')} ${chalk.bold(meta.pkg.name)}`);
+  log.verbose('', `${log.chalk.dim('Package name:')} ${log.chalk.bold(meta.pkg.name)}`);
 
   const linkPaths = getNpmLinkPaths();
 
@@ -48,7 +47,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
   if (targetDirectoryInfo.exists) {
     if (targetDirectoryInfo.isSymbolicLink) {
       // Target directory already exists, possibly from a prior 'npm link'.
-      log.info('', `${chalk.dim('Removing existing symlink at:')} ${chalk.green(linkPaths.pkg.link)}`);
+      log.info('', `${log.chalk.dim('Removing existing symlink at:')} ${log.chalk.green(linkPaths.pkg.link)}`);
 
       if (!opts.dryRun) {
         fs.unlinkSync(linkPaths.pkg.link);
@@ -56,7 +55,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
     } else {
       // Target link directory exists and is NOT a symbolic link. Assume it was
       // created by us, and remove it.
-      log.info('', `${chalk.dim('Removing existing directory at:')} ${chalk.green(linkPaths.pkg.link)}`);
+      log.info('', `${log.chalk.dim('Removing existing directory at:')} ${log.chalk.green(linkPaths.pkg.link)}`);
 
       if (!opts.dryRun) {
         fs.removeSync(linkPaths.pkg.link);
@@ -64,7 +63,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
     }
   }
 
-  log.info('', `${chalk.dim('Creating target directory:')} ${chalk.green(linkPaths.pkg.link)}`);
+  log.info('', `${log.chalk.dim('Creating target directory:')} ${log.chalk.green(linkPaths.pkg.link)}`);
 
   if (!opts.dryRun) {
     fs.ensureDirSync(linkPaths.pkg.link);
@@ -79,7 +78,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
       link: path.join(linkPaths.pkg.link, 'package.json')
     };
 
-    log.info('', `${chalk.dim('Linking manifest:')} ${chalk.green(pkgJsonLink.link)} -> ${chalk.green(pkgJsonLink.src)}`);
+    log.info('', `${log.chalk.dim('Linking manifest:')} ${log.chalk.green(pkgJsonLink.link)} -> ${log.chalk.green(pkgJsonLink.src)}`);
 
     if (!opts.dryRun) {
       fs.symlinkSync(pkgJsonLink.src, pkgJsonLink.link);
@@ -95,7 +94,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
       link: path.resolve(linkPaths.pkg.link, 'node_modules')
     };
 
-    log.info('', `${chalk.dim('Linking dependencies:')} ${chalk.green(nodeModulesLink.link)} -> ${chalk.green(nodeModulesLink.src)}`);
+    log.info('', `${log.chalk.dim('Linking dependencies:')} ${log.chalk.green(nodeModulesLink.link)} -> ${log.chalk.green(nodeModulesLink.src)}`);
 
     if (!opts.dryRun) {
       fs.symlinkSync(nodeModulesLink.src, nodeModulesLink.link);
@@ -113,7 +112,7 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
           link: path.join(linkPaths.pkg.link, fileEntry)
         };
 
-        log.info('', `${chalk.dim('Linking files:')} ${chalk.green(fileLink.link)} -> ${chalk.green(fileLink.src)}`);
+        log.info('', `${log.chalk.dim('Linking files:')} ${log.chalk.green(fileLink.link)} -> ${log.chalk.green(fileLink.src)}`);
 
         if (!opts.dryRun) {
           fs.symlinkSync(fileLink.src, fileLink.link);
@@ -136,20 +135,20 @@ export default function link(userOptions: Partial<CreateLinkOptions> = {}) {
 
         if (!linkInfo.exists) {
           // Symbolic link/binary does not exist.
-          log.info('', `${chalk.dim('Linking binary:')} ${chalk.green(binLink.link)} -> ${chalk.green(binLink.src)}`);
+          log.info('', `${log.chalk.dim('Linking binary:')} ${log.chalk.green(binLink.link)} -> ${log.chalk.green(binLink.src)}`);
 
           if (!opts.dryRun) {
             fs.symlinkSync(binLink.src, binLink.link);
           }
         } else if (linkInfo.realPath === binLink.src) {
           // Symbolic link already exists and points to the desired target path.
-          log.info('', `${chalk.dim('Symlink for binary')} ${binLink.link} ${chalk.dim('already exists; skipping.')}`);
+          log.info('', `${log.chalk.dim('Symlink for binary')} ${binLink.link} ${log.chalk.dim('already exists; skipping.')}`);
         } else if (linkInfo.isSymbolicLink) {
           // Symbolic link already exists but points to a different path.
-          log.warn('', `${chalk.dim('Refusing to overwrite existing symbolic link:')} ${chalk.magenta(binLink.link)} -> ${linkInfo.realPath}`);
+          log.warn('', `${log.chalk.dim('Refusing to overwrite existing symbolic link:')} ${log.chalk.magenta(binLink.link)} -> ${linkInfo.realPath}`);
         } else {
           // Binary already exists.
-          log.warn('', `${chalk.dim('Refusing to overwrite existing binary:')} ${chalk.red(binLink.link)}`);
+          log.warn('', `${log.chalk.dim('Refusing to overwrite existing binary:')} ${log.chalk.red(binLink.link)}`);
         }
       });
     } else if (userOptions.bin) {

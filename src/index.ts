@@ -1,7 +1,6 @@
-import createLink from './lib/create-link';
-import linkAll from './lib/link-all';
+import makeLinkable from './lib/make-linkable';
+import linkTo from './lib/link-to';
 
-export {
-  createLink,
-  linkAll
-};
+export {makeLinkable, linkTo};
+
+export default {makeLinkable, linkTo};

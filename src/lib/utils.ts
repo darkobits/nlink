@@ -2,8 +2,11 @@ import os from 'os';
 import path from 'path';
 
 import execa from 'execa';
+import findUp from 'find-up';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
+// @ts-ignore
+import validateNpmPackageName from 'validate-npm-package-name';
 
 import {NpmLinkPaths} from '../etc/types';
 
@@ -118,4 +121,29 @@ export function introspectPath(str: string) {
   }
 
   return results;
+}
+
+
+/**
+ * Provided a string, returns true if the string is a valid NPM package name.
+ */
+export function isValidPackageName(name: string): boolean {
+  return validateNpmPackageName(name).validForNewPackages;
+}
+
+
+/**
+ * Returns a flat list of all dependencies found in a project's
+ * package-lock.json.
+ */
+export function getDependenciesFromLockfile(cwd: string = process.cwd()): Array<string> {
+  const lockfilePath = findUp.sync('package-lock.json', {cwd});
+
+  if (!lockfilePath) {
+    return [];
+  }
+
+  const {dependencies} = require(lockfilePath);
+
+  return Object.keys(dependencies);
 }

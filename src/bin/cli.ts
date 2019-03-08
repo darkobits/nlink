@@ -3,8 +3,8 @@
 import yargs, {Arguments} from 'yargs';
 
 import {CreateLinkOptions} from '../etc/types';
-import createLink from 'lib/create-link';
-import linkAll from 'lib/link-all';
+import makeLinkable from 'src/lib/make-linkable';
+import linkTo from 'src/lib/link-to';
 import log from 'lib/log';
 
 
@@ -42,7 +42,7 @@ yargs.option('dryRun', {
   required: false
 });
 
-yargs.example('nlink --files=false', 'Make the local package linkable, but do not symlink the "files" declared in its package.json.');
+yargs.example('nlink --bin=false', 'Make the local package linkable, but do not symlink the "bin" files declared in its package.json.');
 yargs.example('nlink "@babel/**"', 'Link to all packages matching "@babel/".');
 
 yargs.epilogue('For more information, see: https://docs.npmjs.com/cli/link.html');
@@ -63,9 +63,9 @@ try {
   }
 
   if (packageOrPattern) {
-    linkAll(packageOrPattern, {dryRun: args.dryRun});
+    linkTo(packageOrPattern, {dryRun: args.dryRun});
   } else {
-    createLink(args);
+    makeLinkable(args);
   }
 } catch (err) {
   log.error('', err.stack);
