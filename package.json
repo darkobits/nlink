@@ -1,6 +1,6 @@
 {
   "name": "@darkobits/nlink",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "author": "darkobits",
   "description": "An improved 'npm link'.",
   "license": "WTFPL",
