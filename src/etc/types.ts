@@ -24,9 +24,9 @@ export interface LinkDescriptor {
  */
 export interface NpmLinkPaths {
   /**
-   * The primary package folder that will contain source files and dependences.
+   * The primary package folder that will contain source files and dependencies.
    */
-  pkg: LinkDescriptor;
+  package: LinkDescriptor;
 
   /**
    * A list of link descriptors for each "bin" declared in the package.
@@ -44,14 +44,14 @@ export interface CreateLinkOptions {
   /**
    * Whether to symlink the host package's manifest (package.json).
    *
-   * Default: true
+   * Default: `true`
    */
   manifest: boolean;
 
   /**
    * Whether to symlink the host package's node_modules directory.
    *
-   * Default: true
+   * Default: `true`
    */
   nodeModules: boolean;
 
@@ -59,7 +59,7 @@ export interface CreateLinkOptions {
    * Whether to symlink the host package's "files" (as enumerated in its
    * package.json).
    *
-   * Default: true
+   * Default: `true`
    */
   files: boolean;
 
@@ -67,14 +67,14 @@ export interface CreateLinkOptions {
    * Whether to symlink the host package's "bin" entry/entries (as enumerated in
    * its package.json).
    *
-   * Default: true
+   * Default: `true`
    */
   bin: boolean;
 
   /**
    * Whether to perform a dry-run.
    *
-   * Default: false
+   * Default: `false`
    */
   dryRun: boolean;
 }

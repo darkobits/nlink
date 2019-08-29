@@ -25,9 +25,14 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
   };
 
   const meta = readPkgUp.sync();
+
+  if (!meta) {
+    throw new Error('Unable to find a package.json for the local project.');
+  }
+
   const root = path.parse(meta.path).dir;
 
-  if (!meta.pkg.name) {
+  if (!meta.package.name) {
     throw new Error('Package must have a "name" field in order to be linked.');
   }
 
@@ -35,38 +40,38 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
     log.info('', log.chalk.dim('Performing dry-run.'));
   }
 
-  log.verbose('', `${log.chalk.dim('Package name:')} ${log.chalk.bold(meta.pkg.name)}`);
+  log.verbose('', `${log.chalk.dim('Package name:')} ${log.chalk.bold(meta.package.name)}`);
 
   const linkPaths = getNpmLinkPaths();
 
 
   // ----- Create Link Directory -----------------------------------------------
 
-  const targetDirectoryInfo = introspectPath(linkPaths.pkg.link);
+  const targetDirectoryInfo = introspectPath(linkPaths.package.link);
 
   if (targetDirectoryInfo.exists) {
     if (targetDirectoryInfo.isSymbolicLink) {
       // Target directory already exists, possibly from a prior 'npm link'.
-      log.info('', `${log.chalk.dim('Removing existing symlink at:')} ${log.chalk.green(linkPaths.pkg.link)}`);
+      log.info('', `${log.chalk.dim('Removing existing symlink at:')} ${log.chalk.green(linkPaths.package.link)}`);
 
       if (!opts.dryRun) {
-        fs.unlinkSync(linkPaths.pkg.link);
+        fs.unlinkSync(linkPaths.package.link);
       }
     } else {
       // Target link directory exists and is NOT a symbolic link. Assume it was
       // created by us, and remove it.
-      log.info('', `${log.chalk.dim('Removing existing directory at:')} ${log.chalk.green(linkPaths.pkg.link)}`);
+      log.info('', `${log.chalk.dim('Removing existing directory at:')} ${log.chalk.green(linkPaths.package.link)}`);
 
       if (!opts.dryRun) {
-        fs.removeSync(linkPaths.pkg.link);
+        fs.removeSync(linkPaths.package.link);
       }
     }
   }
 
-  log.info('', `${log.chalk.dim('Creating target directory:')} ${log.chalk.green(linkPaths.pkg.link)}`);
+  log.info('', `${log.chalk.dim('Creating target directory:')} ${log.chalk.green(linkPaths.package.link)}`);
 
   if (!opts.dryRun) {
-    fs.ensureDirSync(linkPaths.pkg.link);
+    fs.ensureDirSync(linkPaths.package.link);
   }
 
 
@@ -75,7 +80,7 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
   if (opts.manifest) {
     const pkgJsonLink: LinkDescriptor = {
       src: meta.path,
-      link: path.join(linkPaths.pkg.link, 'package.json')
+      link: path.join(linkPaths.package.link, 'package.json')
     };
 
     log.info('', `${log.chalk.dim('Linking manifest:')} ${log.chalk.green(pkgJsonLink.link)} -> ${log.chalk.green(pkgJsonLink.src)}`);
@@ -91,7 +96,7 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
   if (opts.nodeModules) {
     const nodeModulesLink: LinkDescriptor = {
       src: path.resolve(root, 'node_modules'),
-      link: path.resolve(linkPaths.pkg.link, 'node_modules')
+      link: path.resolve(linkPaths.package.link, 'node_modules')
     };
 
     log.info('', `${log.chalk.dim('Linking dependencies:')} ${log.chalk.green(nodeModulesLink.link)} -> ${log.chalk.green(nodeModulesLink.src)}`);
@@ -105,11 +110,11 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
   // ----- Symlink Files -------------------------------------------------------
 
   if (opts.files) {
-    if (meta.pkg.files) {
-      meta.pkg.files.forEach(fileEntry => {
+    if (meta.package.files) {
+      meta.package.files.forEach(fileEntry => {
         const fileLink: LinkDescriptor = {
           src: path.join(root, fileEntry),
-          link: path.join(linkPaths.pkg.link, fileEntry)
+          link: path.join(linkPaths.package.link, fileEntry)
         };
 
         log.info('', `${log.chalk.dim('Linking files:')} ${log.chalk.green(fileLink.link)} -> ${log.chalk.green(fileLink.src)}`);

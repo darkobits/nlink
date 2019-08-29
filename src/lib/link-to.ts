@@ -40,7 +40,7 @@ export default function linkTo(packageOrPattern: string, userOpts: any = {}) {
     log.info('', `${log.chalk.dim('Linking package:')} ${pkg}`);
 
     if (!opts.dryRun) {
-      execa.shellSync(`npm link ${pkg}`);
+      execa.sync('npm', ['link', pkg]);
     }
   });
 

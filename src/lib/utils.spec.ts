@@ -12,11 +12,11 @@ import {
 
 describe('getNpmPathPrefix', () => {
   let getNpmPathPrefix: Function;
-  let shellSyncMock: any;
+  let syncMock: any;
 
   beforeEach(() => {
     // @ts-ignore
-    shellSyncMock = jest.spyOn(execa, 'shellSync').mockImplementation(() => {
+    syncMock = jest.spyOn(execa, 'sync').mockImplementation(() => {
       return {stdout: ''};
     });
 
@@ -25,7 +25,7 @@ describe('getNpmPathPrefix', () => {
 
   it('should call "npm prefix -g"', () => {
     getNpmPathPrefix();
-    expect(shellSyncMock).toHaveBeenLastCalledWith('npm prefix -g');
+    expect(syncMock).toHaveBeenLastCalledWith('npm', ['prefix', '-g']);
   });
 });
 
@@ -80,8 +80,8 @@ describe('getNpmLinkPaths', () => {
   it('return descriptors for source and link locations', () => {
     const result = getNpmLinkPaths();
 
-    expect(result.pkg.src).toBe(process.cwd());
-    expect(result.pkg.link).toMatch(/@darkobits\/nlink/g);
+    expect(result.package.src).toBe(process.cwd());
+    expect(result.package.link).toMatch(/@darkobits\/nlink/g);
     // @ts-ignore
     expect(result.bin.length).toBeGreaterThan(0);
     // @ts-ignore

@@ -21,7 +21,7 @@ import {NpmLinkPaths} from '../etc/types';
  * programatically.
  */
 export function getNpmPathPrefix() {
-  return execa.shellSync('npm prefix -g').stdout;
+  return execa.sync('npm', ['prefix', '-g']).stdout;
 }
 
 
@@ -69,19 +69,23 @@ export function getNpmLinkPaths(cwd: string = process.cwd()): NpmLinkPaths {
   // working directory, or the provided directory.
   const meta = readPkgUp.sync({cwd});
 
+  if (!meta) {
+    throw new Error(`Unable to find a package.json. from "${cwd}"`);
+  }
+
   // The path property is the absolute path to the package.json file. We want
   // just the directory.
   const root = path.parse(meta.path).dir;
 
   const result: NpmLinkPaths = {
-    pkg: {
+    package: {
       src: root,
-      link: path.join(npmPrefix, pkgIntermediatePath, 'node_modules', meta.pkg.name)
+      link: path.join(npmPrefix, pkgIntermediatePath, 'node_modules', meta.package.name)
     }
   };
 
-  if (meta.pkg.bin) {
-    result.bin = Object.entries(meta.pkg.bin).map(([binName, binPath]) => ({
+  if (meta.package.bin) {
+    result.bin = Object.entries(meta.package.bin).map(([binName, binPath]) => ({
       src: path.join(root, binPath),
       link: path.join(npmPrefix, binIntermediatePath, binName)
     }));
