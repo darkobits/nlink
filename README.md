@@ -3,11 +3,10 @@
 </a>
 <p align="center">
   <a href="https://www.npmjs.com/package/@darkobits/nlink"><img src="https://img.shields.io/npm/v/@darkobits/nlink.svg?style=flat-square"></a>
-  <a href="https://travis-ci.org/darkobits/nlink"><img src="https://img.shields.io/travis/darkobits/nlink.svg?style=flat-square"></a>
+  <a href="https://github.com/darkobits/nlink/actions"><img src="https://img.shields.io/endpoint?url=https://aws.frontlawn.net/ga-shields/darkobits/nlink&style=flat-square"></a>
   <a href="https://www.codacy.com/app/darkobits/nlink"><img src="https://img.shields.io/codacy/coverage/0f633a69424344b49ecf5b045903f44b.svg?style=flat-square"></a>
   <a href="https://david-dm.org/darkobits/nlink"><img src="https://img.shields.io/david/darkobits/nlink.svg?style=flat-square"></a>
-  <a href="https://github.com/conventional-changelog/standard-version"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-027dc6.svg?style=flat-square"></a>
-  <a href="https://github.com/sindresorhus/xo"><img src="https://img.shields.io/badge/code_style-XO-e271a5.svg?style=flat-square"></a>
+  <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-FB5E85.svg?style=flat-square"></a>
 </p>
 
 This tool is intended to be a suppliment to `npm link` in certain exotic cases where `npm link` doesn't do exactly what you want it to do.
