@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.3](https://github.com/darkobits/nlink/compare/v3.1.2...v3.1.3) (2019-09-04)
+
+
+### Bug Fixes
+
+* Use correct import paths. ([cb76bf9](https://github.com/darkobits/nlink/commit/cb76bf9))
+
 ### [3.1.2](https://github.com/darkobits/nlink/compare/v3.1.1...v3.1.2) (2019-08-29)
 
 <a name="3.1.1"></a>
