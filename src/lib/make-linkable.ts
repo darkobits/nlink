@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
 
-import {CreateLinkOptions, LinkDescriptor} from '../etc/types';
+import {CreateLinkOptions, LinkDescriptor} from 'etc/types';
 import log from 'lib/log';
 import {getNpmLinkPaths, introspectPath} from 'lib/utils';
 

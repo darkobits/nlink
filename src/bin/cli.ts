@@ -2,9 +2,9 @@
 
 import yargs, {Arguments} from 'yargs';
 
-import {CreateLinkOptions} from '../etc/types';
-import makeLinkable from 'src/lib/make-linkable';
-import linkTo from 'src/lib/link-to';
+import {CreateLinkOptions} from 'etc/types';
+import makeLinkable from 'lib/make-linkable';
+import linkTo from 'lib/link-to';
 import log from 'lib/log';
 
 

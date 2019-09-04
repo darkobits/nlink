@@ -8,7 +8,7 @@ import readPkgUp from 'read-pkg-up';
 // @ts-ignore
 import validateNpmPackageName from 'validate-npm-package-name';
 
-import {NpmLinkPaths} from '../etc/types';
+import {NpmLinkPaths} from 'etc/types';
 
 
 /**
