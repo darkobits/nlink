@@ -38,7 +38,7 @@
     "minimatch": "^3.0.4",
     "read-pkg-up": "^6.0.0",
     "validate-npm-package-name": "^3.0.0",
-    "yargs": "^14.0.0"
+    "yargs": "^15.0.1"
   },
   "devDependencies": {
     "@darkobits/ts-unified": "^3.0.6",
