@@ -1,28 +1,13 @@
 import os from 'os';
 import path from 'path';
 
-import execa from 'execa';
+import {ExecaWrapper} from '@darkobits/chex';
 import findUp from 'find-up';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
-// @ts-ignore
 import validateNpmPackageName from 'validate-npm-package-name';
 
 import {NpmLinkPaths} from 'etc/types';
-
-
-/**
- * Returns the platform-dependent path prefix NPM uses when linking packages.
- *
- * On POSIX systems, this is something like: "/usr/local"
- * On Windows, this is something like: "C:\Users\<username>\AppData\Roaming\npm"
- *
- * This is configurable by the user, so it should always be obtained
- * programatically.
- */
-export function getNpmPathPrefix() {
-  return execa.sync('npm', ['prefix', '-g']).stdout;
-}
 
 
 /**
@@ -58,14 +43,14 @@ export function getIntermediateBinPathSegment() {
  * is found, then returns an object describing where 'npm link' would normally
  * create symlinks for that package and its binaries.
  */
-export function getNpmLinkPaths(cwd: string = process.cwd()): NpmLinkPaths {
+export function getNpmLinkPaths(npm: ExecaWrapper, cwd: string = process.cwd()): NpmLinkPaths {
   // This function calls-out to a shell, so only call it once.
-  const npmPrefix = getNpmPathPrefix();
+  const npmPrefix = npm.sync(['prefix', '-g']).stdout;
 
   const pkgIntermediatePath = getIntermediateLinkPathSegment();
   const binIntermediatePath = getIntermediateBinPathSegment();
 
-  // Get information for the closest parent package relative to the corrent
+  // Get information for the closest parent package relative to the current
   // working directory, or the provided directory.
   const meta = readPkgUp.sync({cwd});
 
@@ -80,12 +65,12 @@ export function getNpmLinkPaths(cwd: string = process.cwd()): NpmLinkPaths {
   const result: NpmLinkPaths = {
     package: {
       src: root,
-      link: path.join(npmPrefix, pkgIntermediatePath, 'node_modules', meta.package.name)
+      link: path.join(npmPrefix, pkgIntermediatePath, 'node_modules', meta.packageJson.name)
     }
   };
 
-  if (meta.package.bin) {
-    result.bin = Object.entries(meta.package.bin).map(([binName, binPath]) => ({
+  if (meta.packageJson.bin) {
+    result.bin = Object.entries(meta.packageJson.bin).map(([binName, binPath]) => ({
       src: path.join(root, binPath),
       link: path.join(npmPrefix, binIntermediatePath, binName)
     }));

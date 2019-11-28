@@ -31,23 +31,23 @@
     "prepare": "nps prepare"
   },
   "dependencies": {
-    "@darkobits/log": "^1.2.3",
-    "execa": "^2.0.4",
+    "@darkobits/chex": "^0.1.6",
+    "@darkobits/log": "^1.2.5",
+    "@darkobits/saffron": "^0.1.9",
     "find-up": "^4.1.0",
     "fs-extra": "^8.1.0",
     "minimatch": "^3.0.4",
-    "read-pkg-up": "^6.0.0",
-    "validate-npm-package-name": "^3.0.0",
-    "yargs": "^14.0.0"
+    "read-pkg-up": "^7.0.0",
+    "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
-    "@darkobits/ts-unified": "^3.0.6",
-    "@types/fs-extra": "^8.0.0",
-    "@types/jest": "^24.0.18",
+    "@darkobits/ts-unified": "^3.2.4",
+    "@types/fs-extra": "^8.0.1",
+    "@types/jest": "^24.0.23",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^11.13.13",
-    "@types/uuid": "^3.4.5",
-    "@types/yargs": "^13.0.2",
+    "@types/node": "^12.12.14",
+    "@types/uuid": "^3.4.6",
+    "@types/validate-npm-package-name": "^3.0.0",
     "uuid": "^3.3.3"
   }
 }

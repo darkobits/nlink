@@ -1,4 +1,4 @@
-import execa from 'execa';
+import {ExecaWrapper} from '@darkobits/chex';
 import minimatch from 'minimatch';
 import log from 'lib/log';
 import {
@@ -11,7 +11,7 @@ import {
  * Replacement for 'npm link <package>' that can match multiple packages using
  * globs.
  */
-export default function linkTo(packageOrPattern: string, userOpts: any = {}) {
+export default function linkTo(npm: ExecaWrapper, packageOrPattern: string, userOpts: any = {}) {
   const opts = {
     cwd: process.cwd(),
     dryRun: false,
@@ -40,7 +40,7 @@ export default function linkTo(packageOrPattern: string, userOpts: any = {}) {
     log.info('', `${log.chalk.dim('Linking package:')} ${pkg}`);
 
     if (!opts.dryRun) {
-      execa.sync('npm', ['link', pkg]);
+      npm.sync(['link', pkg]);
     }
   });
 

@@ -1,5 +1,6 @@
 import path from 'path';
 
+import {ExecaWrapper} from '@darkobits/chex';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
 
@@ -13,7 +14,7 @@ import {getNpmLinkPaths, introspectPath} from 'lib/utils';
  * contains files essential for the package to run, rather than the entire
  * project directory.
  */
-export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {}) {
+export default function makeLinkable(npm: ExecaWrapper, userOptions: Partial<CreateLinkOptions> = {}) {
   // Merge user-provided options with defaults.
   const opts: CreateLinkOptions = {
     manifest: true,
@@ -32,7 +33,7 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
 
   const root = path.parse(meta.path).dir;
 
-  if (!meta.package.name) {
+  if (!meta.packageJson.name) {
     throw new Error('Package must have a "name" field in order to be linked.');
   }
 
@@ -40,9 +41,9 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
     log.info('', log.chalk.dim('Performing dry-run.'));
   }
 
-  log.verbose('', `${log.chalk.dim('Package name:')} ${log.chalk.bold(meta.package.name)}`);
+  log.verbose('', `${log.chalk.dim('Package name:')} ${log.chalk.bold(meta.packageJson.name)}`);
 
-  const linkPaths = getNpmLinkPaths();
+  const linkPaths = getNpmLinkPaths(npm);
 
 
   // ----- Create Link Directory -----------------------------------------------
@@ -110,8 +111,8 @@ export default function makeLinkable(userOptions: Partial<CreateLinkOptions> = {
   // ----- Symlink Files -------------------------------------------------------
 
   if (opts.files) {
-    if (meta.package.files) {
-      meta.package.files.forEach(fileEntry => {
+    if (meta.packageJson.files) {
+      meta.packageJson.files.forEach(fileEntry => {
         const fileLink: LinkDescriptor = {
           src: path.join(root, fileEntry),
           link: path.join(linkPaths.package.link, fileEntry)

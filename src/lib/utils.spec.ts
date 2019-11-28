@@ -1,6 +1,5 @@
 import os from 'os';
 import path from 'path';
-import execa from 'execa';
 import uuid from 'uuid/v4';
 import {
   getIntermediateLinkPathSegment,
@@ -8,26 +7,6 @@ import {
   getNpmLinkPaths,
   introspectPath
 } from './utils';
-
-
-describe('getNpmPathPrefix', () => {
-  let getNpmPathPrefix: Function;
-  let syncMock: any;
-
-  beforeEach(() => {
-    // @ts-ignore
-    syncMock = jest.spyOn(execa, 'sync').mockImplementation(() => {
-      return {stdout: ''};
-    });
-
-    getNpmPathPrefix = require('./utils').getNpmPathPrefix; // tslint:disable-line no-require-imports
-  });
-
-  it('should call "npm prefix -g"', () => {
-    getNpmPathPrefix();
-    expect(syncMock).toHaveBeenLastCalledWith('npm', ['prefix', '-g']);
-  });
-});
 
 
 describe('getIntermediateLinkPathSegment', () => {
@@ -78,7 +57,15 @@ describe('getIntermediateBinPathSegment', () => {
 
 describe('getNpmLinkPaths', () => {
   it('return descriptors for source and link locations', () => {
-    const result = getNpmLinkPaths();
+    const npmMock = {
+      sync: jest.fn(() => {
+        return {
+          stdout: '/foo/bar'
+        };
+      })
+    };
+
+    const result = getNpmLinkPaths(npmMock as any);
 
     expect(result.package.src).toBe(process.cwd());
     expect(result.package.link).toMatch(/@darkobits\/nlink/g);

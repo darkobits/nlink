@@ -1,5 +1,3 @@
-
-
 /**
  * Object we use to describe an intent to create a symlink at 'link' pointing to
  * 'src'.
