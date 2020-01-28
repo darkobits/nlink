@@ -43,7 +43,7 @@
   "devDependencies": {
     "@darkobits/ts-unified": "^3.2.4",
     "@types/fs-extra": "^8.0.1",
-    "@types/jest": "^24.0.23",
+    "@types/jest": "^25.1.0",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^12.12.14",
     "@types/uuid": "^3.4.6",
