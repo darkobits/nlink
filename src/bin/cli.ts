@@ -57,7 +57,7 @@ cli.command<CreateLinkOptions>({
       }
 
       // Ensure NPM is installed, throw if not.
-      const npm = await chex('np2m');
+      const npm = await chex('npm');
 
       if (packageOrPattern) {
         linkTo(npm, packageOrPattern, {dryRun: argv.dryRun});
