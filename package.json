@@ -33,21 +33,21 @@
   "dependencies": {
     "@darkobits/chex": "^0.1.6",
     "@darkobits/log": "^1.2.5",
-    "@darkobits/saffron": "^0.1.9",
+    "@darkobits/saffron": "^0.1.12",
     "find-up": "^4.1.0",
     "fs-extra": "^8.1.0",
     "minimatch": "^3.0.4",
-    "read-pkg-up": "^7.0.0",
+    "read-pkg-up": "^7.0.1",
     "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
-    "@darkobits/ts-unified": "^3.2.4",
+    "@darkobits/ts-unified": "^4.0.0-beta.2",
     "@types/fs-extra": "^8.0.1",
-    "@types/jest": "^24.0.23",
+    "@types/jest": "^25.1.2",
     "@types/minimatch": "^3.0.3",
-    "@types/node": "^12.12.14",
-    "@types/uuid": "^3.4.6",
+    "@types/node": "^13.7.1",
+    "@types/uuid": "^3.4.7",
     "@types/validate-npm-package-name": "^3.0.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.4.0"
   }
 }
