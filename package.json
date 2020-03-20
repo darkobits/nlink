@@ -35,7 +35,7 @@
     "@darkobits/log": "^1.2.5",
     "@darkobits/saffron": "^0.1.12",
     "find-up": "^4.1.0",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.0.0",
     "minimatch": "^3.0.4",
     "read-pkg-up": "^7.0.1",
     "validate-npm-package-name": "^3.0.0"
