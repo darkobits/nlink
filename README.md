@@ -1,11 +1,11 @@
 <a href="#top" id="top">
-  <img src="https://user-images.githubusercontent.com/441546/50995078-db831780-14d2-11e9-9076-d74a255b1400.png" style="max-width: 100%;">
+  <img src="https://user-images.githubusercontent.com/441546/102331985-5b784e80-3f40-11eb-864c-1a8b6e00353b.png" style="max-width: 100%;">
 </a>
 <p align="center">
   <a href="https://www.npmjs.com/package/@darkobits/nlink"><img src="https://img.shields.io/npm/v/@darkobits/nlink.svg?style=flat-square"></a>
-  <a href="https://github.com/darkobits/nlink/actions"><img src="https://img.shields.io/endpoint?url=https://aws.frontlawn.net/ga-shields/darkobits/nlink&style=flat-square"></a>
+  <a href="https://travis-ci.com/github/darkobits/nlink"><img src="https://img.shields.io/travis/com/darkobits/nlink?style=flat-square"></a>
   <a href="https://david-dm.org/darkobits/nlink"><img src="https://img.shields.io/david/darkobits/nlink.svg?style=flat-square"></a>
-  <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-FB5E85.svg?style=flat-square"></a>
+  <a href="https://github.com/conventional-changelog/standard-version"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-027dc6.svg?style=flat-square"></a>
 </p>
 
 This tool is intended to be a suppliment to `npm link` in certain exotic cases where `npm link` doesn't do exactly what you want it to do.
@@ -85,7 +85,5 @@ Additionally, you may pass `--dry-run` to either form of the command, which will
 </p>
 
 <a href="#top">
-  <img src="https://user-images.githubusercontent.com/441546/69777002-41ac7380-1153-11ea-85a4-88184f8c9975.png" style="max-width: 100%;">
+  <img src="https://user-images.githubusercontent.com/441546/102322726-5e6d4200-3f34-11eb-89f2-c31624ab7488.png" style="max-width: 100%;">
 </a>
-
-[bad-time-url]: http://1.images.southparkstudios.com/images/shows/south-park/clip-thumbnails/season-6/0603/south-park-s06e03c03-thumper-the-super-cool-ski-instructor-16x9.jpg?quality=1
