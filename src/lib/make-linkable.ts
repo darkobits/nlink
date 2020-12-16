@@ -1,12 +1,12 @@
 import path from 'path';
 
-import {ExecaWrapper} from '@darkobits/chex';
+import { ExecaWrapper } from '@darkobits/chex';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
 
-import {CreateLinkOptions, LinkDescriptor} from 'etc/types';
+import { CreateLinkOptions, LinkDescriptor } from 'etc/types';
 import log from 'lib/log';
-import {getNpmLinkPaths, introspectPath} from 'lib/utils';
+import { getNpmLinkPaths, introspectPath } from 'lib/utils';
 
 
 /**
@@ -16,7 +16,7 @@ import {getNpmLinkPaths, introspectPath} from 'lib/utils';
  */
 export default function makeLinkable(npm: ExecaWrapper, userOptions: Partial<CreateLinkOptions> = {}) {
   // Merge user-provided options with defaults.
-  const opts: CreateLinkOptions = {
+  const opts: Partial<CreateLinkOptions> = {
     manifest: true,
     nodeModules: true,
     files: true,

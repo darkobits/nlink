@@ -40,6 +40,11 @@ export interface NpmLinkPaths {
  */
 export interface CreateLinkOptions {
   /**
+   * Package name or glob pattern of package names to link to.
+   */
+  packageOrPattern: string;
+
+  /**
    * Whether to symlink the host package's manifest (package.json).
    *
    * Default: `true`

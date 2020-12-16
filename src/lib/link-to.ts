@@ -1,5 +1,6 @@
-import {ExecaWrapper} from '@darkobits/chex';
+import { ExecaWrapper } from '@darkobits/chex';
 import minimatch from 'minimatch';
+
 import log from 'lib/log';
 import {
   isValidPackageName,
@@ -26,7 +27,7 @@ export default function linkTo(npm: ExecaWrapper, packageOrPattern: string, user
 
   const packagesToLink = dependencies.filter(minimatch.filter(packageOrPattern));
 
-  if (!packagesToLink.length) {
+  if (packagesToLink.length === 0) {
     if (isValidPackageName(packageOrPattern)) {
       log.verbose('', log.chalk.dim('Input did not match any dependencies, but is a valid package name; treating as explicit.'));
       packagesToLink.push(packageOrPattern);

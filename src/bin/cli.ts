@@ -5,14 +5,21 @@ import os from 'os';
 import chex from '@darkobits/chex';
 import cli from '@darkobits/saffron';
 
-import {CreateLinkOptions} from 'etc/types';
+import { CreateLinkOptions } from 'etc/types';
 import makeLinkable from 'lib/make-linkable';
 import linkTo from 'lib/link-to';
 import log from 'lib/log';
 
 
 cli.command<CreateLinkOptions>({
-  builder: ({command}) => {
+  command: '* [packageOrPattern]',
+  builder: ({ command }) => {
+    command.positional('packageOrPattern', {
+      description: 'Package name or glob pattern of package names to link to.',
+      type: 'string',
+      required: false
+    });
+
     command.option('manifest', {
       description: 'Whether to symlink the host package\'s manifest (package.json). [Default: true]',
       type: 'boolean',
@@ -48,11 +55,10 @@ cli.command<CreateLinkOptions>({
 
     command.epilogue('For more information, see: https://docs.npmjs.com/cli/link.html');
   },
-  handler: async ({argv}) => {
+  handler: async ({ argv }) => {
+    const { packageOrPattern, dryRun } = argv;
     try {
-      const [packageOrPattern] = argv._;
-
-      if (argv.dryRun) {
+      if (dryRun) {
         log.level = 'silly';
       }
 
@@ -60,7 +66,7 @@ cli.command<CreateLinkOptions>({
       const npm = await chex('npm');
 
       if (packageOrPattern) {
-        linkTo(npm, packageOrPattern, {dryRun: argv.dryRun});
+        linkTo(npm, packageOrPattern, { dryRun });
       } else {
         makeLinkable(npm, argv);
       }

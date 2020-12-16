@@ -1,13 +1,13 @@
 import os from 'os';
 import path from 'path';
 
-import {ExecaWrapper} from '@darkobits/chex';
+import { ExecaWrapper } from '@darkobits/chex';
 import findUp from 'find-up';
 import fs from 'fs-extra';
 import readPkgUp from 'read-pkg-up';
 import validateNpmPackageName from 'validate-npm-package-name';
 
-import {NpmLinkPaths} from 'etc/types';
+import { NpmLinkPaths } from 'etc/types';
 
 
 /**
@@ -132,7 +132,7 @@ export function getDependenciesFromLockfile(cwd: string = process.cwd()): Array<
     return [];
   }
 
-  const {dependencies} = require(lockfilePath);
+  const { dependencies } = fs.readJSONSync(lockfilePath);
 
   return Object.keys(dependencies);
 }
