@@ -30,7 +30,7 @@
   "dependencies": {
     "@darkobits/chex": "^0.1.6",
     "@darkobits/log": "^1.2.5",
-    "@darkobits/saffron": "^0.1.9",
+    "@darkobits/saffron": "^0.1.16",
     "find-up": "^5.0.0",
     "fs-extra": "^9.0.1",
     "minimatch": "^3.0.4",
@@ -38,7 +38,7 @@
     "validate-npm-package-name": "^3.0.0"
   },
   "devDependencies": {
-    "@darkobits/ts": "^0.2.0",
+    "@darkobits/ts": "^0.2.2",
     "@types/fs-extra": "^9.0.5",
     "@types/minimatch": "^3.0.3",
     "@types/uuid": "^8.3.0",
