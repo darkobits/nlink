@@ -3,7 +3,7 @@
 </a>
 <p align="center">
   <a href="https://www.npmjs.com/package/@darkobits/nlink"><img src="https://img.shields.io/npm/v/@darkobits/nlink.svg?style=flat-square"></a>
-  <a href="https://travis-ci.com/github/darkobits/nlink"><img src="https://img.shields.io/travis/com/darkobits/nlink?style=flat-square"></a>
+  <a href="https://github.com/darkobits/nlink/actions?query=workflow%3ACI"><img src="https://img.shields.io/github/workflow/status/darkobits/nlink/CI/master?style=flat-square"></a>
   <a href="https://david-dm.org/darkobits/nlink"><img src="https://img.shields.io/david/darkobits/nlink.svg?style=flat-square"></a>
   <a href="https://github.com/conventional-changelog/standard-version"><img src="https://img.shields.io/badge/conventional%20commits-1.0.0-027dc6.svg?style=flat-square"></a>
 </p>
@@ -78,12 +78,13 @@ This package respects the `LOG_LEVEL` environment variable, and uses the standar
 Additionally, you may pass `--dry-run` to either form of the command, which will automatically enable more verbose logging.
 
 ## &nbsp;
-
+<br />
 <p align="center">
   <img src="https://user-images.githubusercontent.com/441546/41495073-e120a3cc-70d3-11e8-81da-35f59501cd0e.jpg" width="250"><br>
   Happy linking!
 </p>
 
+<br />
 <a href="#top">
   <img src="https://user-images.githubusercontent.com/441546/102322726-5e6d4200-3f34-11eb-89f2-c31624ab7488.png" style="max-width: 100%;">
 </a>
