@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.1.8](https://github.com/darkobits/nlink/compare/v3.1.7...v3.1.8) (2020-12-24)
+
+
+### 🏗 Chores
+
+* Update dependencies. ([ba7eb74](https://github.com/darkobits/nlink/commit/ba7eb7448207618a87dbcacb10d27d0605448806))
+
 ### [3.1.7](https://github.com/darkobits/nlink/compare/v3.1.6...v3.1.7) (2020-12-21)
 
 
